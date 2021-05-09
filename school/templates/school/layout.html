@@ -1,0 +1,153 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta property="og:title" content="Phern.edu" />
+      <meta property="og:type" content="Phern wants Educators and students to be able to communicate better. We aim to help by giving them a platform to be able to communicate more naturally." />
+      <meta property="og:url" content="www.Phern.edu" />
+      <meta property="og:image" content="{% static 'school/preview.png' %}" />
+
+        <title>{% block title %}Phern{% endblock %}</title>
+        <link rel="icon" href="{% static 'school/logo.png' %}">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="{% static 'school/styles.css' %}" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,700&family=Roboto:ital,wght@0,900;1,400&display=swap" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+    <body>
+
+<style>
+    .landing img {
+      width: 100%;
+    }
+    @media (pointer:none), (pointer:coarse) {
+      .landing img {
+        height: 100%;
+      }
+    }
+</style>
+
+    {% if register %}
+      <div class="landing">
+        <img src="{% static 'school/landing.jpg' %}">
+      </div>
+    {% elif landing %}
+      <div class="landing">
+        <img src="{% static 'school/landing.jpg' %}">
+      </div>
+    {% endif %}
+    <style>
+
+      .navbar-brand img {
+          width: 30px;
+          line-height: 0px;
+          position: relative;
+          margin-bottom: 6px;
+      }
+
+      .navbar-brand p {
+        font-family: Montserrat;
+        display: inline-block;
+        line-height: 0px;
+      }
+
+        @media (pointer:none), (pointer:coarse) {
+          .navbar-brand img {
+            width: 80px;
+          }
+
+          .navbar-brand p {
+            font-size: 40px;
+          }
+
+        }
+    </style>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="{% url 'home' %}"><img src="{% static 'school/logo.png' %}"><p>Phern.edu</p></a>
+
+            <div>
+              <ul class="navbar-nav mr-auto">
+
+                <!-- For Teachers -->
+                {% if user.role == 'Teacher' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'classr' %}">My Classrooms</a>
+                </li>
+                <!-- For Students -->
+                {% elif user.role == 'Student' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'classr' %}">Classes</a>
+                </li>
+                {% endif %}
+                {% if user.is_authenticated %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'tasks' %}">Classwork</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                  </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                {% endif %}
+              </ul>
+            </div>
+          </nav>
+          {% if user.is_authenticated %}
+          <a href="{% url 'profile' user.id %}">
+              <div id="user-profile-fixed">
+
+                  <img onerror="emptypicture(this);" id="navbar-user-profilepicture" src="{{ user.profilepicture.url }}">
+                  <div class="fixed_details">
+                    <strong>{{ user.first_name }} {{user.last_name}}</strong><p id="fixed_role">{{user.role}}</p>
+                  </div>
+
+
+              </div>
+          </a>
+          {% endif %}
+          {% if error %}
+            <div id="error-message-fixed">
+              {{error}}
+            </div>
+          {% endif %}
+        <div class="body">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+        <div style="display: block;" class="loading_div">
+          <div class="dim-form2">
+
+            <div class="loader">
+
+            </div>
+
+          </div>
+        </div>
+        <script>
+
+        $("a").click(function(){
+          $('.loading_div').fadeIn(0);
+        });
+
+        window.addEventListener('load', function () {
+          $('.loading_div').fadeOut(100);
+        })
+
+
+          function emptypicture(ele) {
+            ele.src = '{% static 'school/empty.jpg' %}';
+          }
+        </script>
+
+    </body>
+</html>

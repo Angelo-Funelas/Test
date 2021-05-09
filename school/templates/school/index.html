@@ -1,0 +1,168 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<style>
+
+.index_previewUser {
+  background-color: white;
+  display: inline-block;
+  border-radius: 25px;
+  width: 30%;
+  padding: 15px;
+  padding-bottom: 200px;
+}
+
+.index_previewpicture {
+  width: 80px;
+  height: 80px;
+}
+
+.index_previewUsers {
+  width: 100%;
+  text-align: center;
+}
+
+
+
+.index_pewview_registeredUsers {
+  width: 80px;
+  height: 80px;
+  margin: 5px;
+  transition: .2s;
+}
+
+.index_pewview_registeredUsers:hover {
+  transform: scale(1.04)
+}
+
+  @media (pointer:none), (pointer:coarse) {
+
+    .index_previewUsers {
+      font-size: 30px;
+    }
+
+    .index_pewview_registeredUsers {
+        width: 120px;
+        height: 120px;
+    }
+
+    .index_previewpicture {
+      width: 200px;
+      height: 200px;
+    }
+
+    #get-started {
+      width: 90%;
+      height: 400px;
+    }
+
+    #get-started h1 {
+      font-size: 80px;
+    }
+
+    #get-started p {
+      font-size: 25px;
+    }
+
+  }
+
+.index_registeredUsers {
+  width: 100%;
+  overflow-x: scroll;
+  background-color: white;
+  height: 250px;
+  margin-top: 150px;
+  text-align: center;
+  font-family: Montserrat;
+  padding: 15px;
+}
+
+
+</style>
+
+    <div id="welcome-page">
+      <div id="get-started">
+        <h1>Welcome to Phern.</h1>
+        <p id="desc">Free education platform for Teachers & Students</p>
+        <center><a id="gs-button" href="{% url 'register' %}" class="dropshadowpost">Get Started 🡆</a>
+          <p id="login-option">Already have an account? <a href="{% url 'login' %}">Log In here.</a></p>
+        </center>
+      </div>
+    </div>
+
+    <div class="index_previewUsers">
+
+      <div class="index_previewUser dropshadowpost">
+        <img src="{% static 'school/teachericon.png' %}" class="profilepicture index_previewpicture">
+        <h2>Teachers</h2>
+        Simple registration and application. Easy to use, Free to use
+      </div>
+
+      <div class="index_previewUser dropshadowpost">
+        <img src="{% static 'school/classroomicon.png' %}" class="index_previewpicture">
+        <h2>Create Classrooms</h2>
+        Teachers can create classrooms for students to create a environment where they can update and monitor students
+      </div>
+
+      <div class="index_previewUser dropshadowpost">
+        <img src="{% static 'school/edit.png' %}" class="profilepicture index_previewpicture">
+        <h2>Monitor Progress</h2>
+        We provide a organized environment for students to easily monitor their progress
+      </div>
+
+    </div>
+
+<div class="index_registeredUsers dropshadowpost">
+  <h1>Registered Users</h1>
+  {% for user in previewUser %}
+    <a href="{% url 'profile' user.id %}"><img src="{{user.profilepicture.url}}" class="index_pewview_registeredUsers profilepicture dropshadowpost"></a>
+  {% endfor %}
+</div>
+
+    <!-- Site footer -->
+<footer class="site-footer">
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-6">
+      <h6>About</h6>
+      <p class="text-justify">Phern wants Educators and students to be able to communicate better. We aim to help by giving them a platform to be able to communicate more naturally.</p>
+    </div>
+
+    <div class="col-xs-6 col-md-3">
+      <h6>Categories</h6>
+      <ul class="footer-links">
+        <li>School</li>
+        <li>Classrooms</li>
+        <li>Students</li>
+        <li>Register</li>
+        <li>Login</li>
+        <li>Contacts</li>
+      </ul>
+    </div>
+
+    <div class="col-xs-6 col-md-3">
+      <h6>Quick Links</h6>
+      <ul class="footer-links">
+        <li>About Us</li>
+        <li>Contact Us</li>
+        <li>Contribute</li>
+        <li>Privacy Policy</li>
+        <li>Sitemap</li>
+      </ul>
+    </div>
+  </div>
+  <hr>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-sm-6 col-xs-12">
+      <p class="copyright-text">Copyright &copy; 2020 All Rights Reserved by Phern
+      </p>
+    </div>
+
+  </div>
+</div>
+</footer>
+
+{% endblock %}

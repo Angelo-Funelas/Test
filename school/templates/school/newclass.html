@@ -1,0 +1,13 @@
+{% extends "school/layout.html" %}
+
+{% block body %}
+
+<div id="newclass-div">
+  <form class="" action="{% url 'newclassroom' %}" method="post">
+    <input type="text" name="classroom_name">
+    <input type="color" name="hex_color">
+    <input type="submit">
+  </form>
+</div>
+
+{% endblock %}

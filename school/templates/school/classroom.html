@@ -1,0 +1,629 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<div style="
+  background-color: white;
+  width: 100%;
+  height: 580px;
+  -webkit-box-shadow: 0px 0px 9px 3px rgba(149,165,166,1);
+  -moz-box-shadow: 0px 0px 9px 3px rgba(149,165,166,1);
+  box-shadow: 0px 0px 9px 3px rgba(149,165,166,1);
+">
+
+
+<div id="profile-page-div">
+  <div class="cover_photo">
+
+    <img src="
+      {% if classroom.classcoverphoto %}
+        {{classroom.classcoverphoto.url}}
+      {% else %}
+        {% static 'school/defaultcoverphoto.jpg' %}
+      {% endif %}
+    " style="
+      width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      object-fit: cover;
+      height: 380px;
+      object-position: top;
+      z-index: -1;
+      border-radius: 0px 0px 15px 15px;
+      -webkit-box-shadow: 0px -200px 125px -34px rgba(0,0,0,1);
+      -moz-box-shadow: 0px -200px 125px -34px rgba(0,0,0,1);
+      box-shadow: 0px -200px 125px -34px rgba(0,0,0,1);
+    ">
+
+    {% if classroom.teacher == user %}
+
+    <img class="togglechangecoverphoto" src="{% static 'school/delete.png' %}" style="
+      cursor: pointer;
+      display: block;
+      position: absolute;
+      width: 50px;
+      padding: 10px;
+      top: 320px;
+      z-index: 10;
+      background: white;
+      border-radius: 50%;
+    ">
+
+    {% endif %}
+  </div>
+
+  <img onerror="emptypicture(this);" id="teacherclasspp" class="profilepicture" src="{{ classroom.teacher.profilepicture.url }}"
+  style="
+    background: black;
+    width: 180px;
+    height: 180px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    position: absolute;
+    left:0;
+    right:0;
+    top: 80px;
+    border-width: 5px;
+    -webkit-box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.75);
+  "
+  >
+
+  <h1 style="
+    margin-top: 20px;
+  ">{{classroom.classname}}</h1>
+  <p style="
+    display: inline-block;
+  "><div class="member_display_profilepictures">
+    <img src="{{classroom.teacher.profilepicture.url}}" class="profilepicture" style="
+      width: 50px;
+      height: 50px;
+    ">
+    {% for studentpicture in classroom.students.all %}
+      <img src="{{studentpicture.profilepicture.url}}" class="profilepicture" style="
+        width: 50px;
+        height: 50px;
+      ">
+    {% endfor %}
+  </div>
+  <p style="
+    font-size: 20px;
+    font-family: Montserrat;
+    color: #636e72;
+  ">
+    {% if classroom.password %}
+      🔒 Private
+    {% else %}
+      🌐 Public
+    {% endif %}
+     · {{classroom.students.count}} Student/s
+
+     {% if user.role == 'Student' %}
+
+     <div class="leave_classroom_button" onclick="confirmleave(this)">
+       <img src="{% static 'school/unenroll.png' %}" style="
+          width: 25px;
+       "> Leave Class
+     </div>
+     {% endif %}
+
+
+
+</div>
+
+</div>
+
+<style>
+
+  .leave_classroom_button {
+    background-color: #9b59b6;
+    border-radius: 10px;
+    padding: 10px;
+    width: 160px;
+    color: white;
+    font-family: Montserrat;
+    cursor: pointer;
+    transition: transform .1s, background-color .1s;
+    float: right;
+  }
+
+  .leave_classroom_button:hover {
+    transform: scale(1.1);
+    background-color: #8e44ad;
+  }
+
+  .sidebar_div {
+    background-color: white;
+    height: 100%;
+    position: fixed;
+    width: 250px;
+    -webkit-box-shadow: 10px 10px 35px 0px rgba(0,0,0,0.48);
+    -moz-box-shadow: 10px 10px 35px 0px rgba(0,0,0,0.48);
+    box-shadow: 10px 10px 35px 0px rgba(0,0,0,0.48);
+    padding: 15px;
+    overflow-y: scroll;
+  }
+
+  .sidebar_div::-webkit-scrollbar {
+    display: none;
+  }
+
+  .progress_bar_tasks {
+    height: 25px;
+    width: 100%;
+  }
+
+  @keyframes slidein {
+    0% {
+      background-color: #0be881;
+      filter: hue-rotate(0deg);
+    }
+
+    50% {
+      background-color: #05c46b;
+    }
+
+    100% {
+      background-color: #0be881;
+      {% if tasks_finished_percent == '100.' %}
+        filter: hue-rotate(360deg);
+      {% endif %}
+    }
+  }
+
+  .activity_page_gate {
+    width: 100%;
+    height: 50px;
+    padding: 10px;
+    font-family: Roboto;
+    cursor: pointer;
+    background-color: #d1d8e0;
+    margin-bottom: 1px;
+    border-radius: 10px;
+  }
+
+  .activity_page_title {
+    display: inline-block;
+  }
+
+  .subtasks_display_item {
+    margin-left: 10px;
+    padding: 10px;
+    width: 100%;
+    border: none 1px black;
+    padding: 5px;
+    color: black;
+  }
+
+  .subtasks_display_item:hover {
+    border: solid 1px black;
+  }
+
+  .opensubtasks {
+      width: 30px;
+      float: right;
+      transition: transform .2s;
+  }
+
+  .opensubtasks:hover {
+    background-color: #d1d8e0;
+    transform: rotate(-180deg)
+  }
+
+  .posts_div_classroom {
+    width: 600px;
+    float: right
+  }
+
+  .main_contents_classroom {
+    width: 1050px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+  }
+
+  .about_div_classroom {
+    width: 400px;
+    background-color: white;
+    float: left;
+    padding: 20px;
+    border-radius: 15px;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+  }
+
+  .about_div_classroom_desc {
+    margin-left: 10px;
+    margin-top: 20px;
+  }
+
+  .about_div_classroom_status {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+.about_div_classroom_members {
+  border-radius: 10px;
+  background-color: #dfe6e9;
+  padding: 10px;
+  overflow-y: scroll;
+  max-height: 500px;
+}
+
+.about_div_classroom_members_user{
+  padding: 10px;
+  background-color: white;
+  margin: 2px;
+  border-radius: 10px;
+  font-family: Lato;
+  transition: background-color .1s;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+}
+
+.about_div_classroom_members_user:hover{
+  background-color: #636e72;
+}
+
+.passwordHidden {
+  background-color: black;
+  transition: background-color .25s;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.passwordHidden:active {
+  background-color: white;
+}
+
+.passwordHidden::selection {
+    color: none;
+    background: none;
+}
+/* For Mozilla Firefox */
+.passwordHidden::-moz-selection {
+    color: none;
+    background: none;
+}
+
+.posts_div_classroom {
+  margin-bottom: 250px;
+}
+
+  @media (pointer:none), (pointer:coarse) {
+    .main_contents_classroom {
+      width: 100%;
+    }
+
+    .about_div_classroom {
+      width: 300px;
+    }
+
+  }
+
+</style>
+
+<div class="main_contents_classroom">
+
+<div class="about_div_classroom dropshadowpost">
+  <p style="
+    font-family: Montserrat;
+  ">About</p>
+
+  <div class="about_div_classroom_desc">
+    <p style="
+    font-family: Montserrat;">Classroom ID: {{classroom.id}}</p>
+    {% if user.role == 'Teacher' %}
+      {% if classroom.password %}
+        <div style="
+          background-color: #bdc3c7;
+          padding: 15px;
+          border-radius: 10px;
+        ">
+          <p style="
+          font-family: Montserrat;
+          line-height: 0px;
+          ">Password: </p><div class="passwordHidden">
+            {{classroom.password}}
+          </div>Click & Hold
+        </div>
+      {% endif %}
+    {% endif %}
+    {{classroom.description}}
+  </div>
+
+  <div class="about_div_classroom_status">
+    {% if classroom.password %}
+      🔒 Private
+    {% else %}
+      🌐 Public
+    {% endif %}
+  </div>
+
+
+
+  <div class="about_div_classroom_members">
+    Members:
+    <a href="{% url 'profile' classroom.teacher.id %}">
+      <div class="about_div_classroom_members_user">
+      <img src="{{classroom.teacher.profilepicture.url}}" class="profilepicture" style="
+        width: 25px;
+        height: 25px;
+        margin-right: 10px;
+      ">
+      {{classroom.teacher.first_name}} {{classroom.teacher.last_name}}
+    </div>
+  </a>
+    {% for student in classroom.students.all %}
+    <a href="{% url 'profile' student.id %}">
+      <div class="about_div_classroom_members_user">
+        <img src="{{student.profilepicture.url}}" class="profilepicture" style="
+          width: 25px;
+          height: 25px;
+          margin-right: 10px;
+        ">
+        {{student.first_name}} {{student.last_name}}
+      </div>
+    </a>
+
+
+    {% endfor %}
+
+
+  </div>
+{% if user.role == 'Student' %}
+  <div style="
+  margin-bottom: 100px;
+  margin-top: 50px;
+  ">
+
+  <h1 style="
+    font-family: Montserrat;
+  ">Tasks</h1>
+    <div class="activity_page_gate">
+      <div style="
+        display: inline-block;
+        background-color: #26de81;
+        text-align: center;
+        width: 30px;
+        height: 30px;
+        padding: 3px;
+        border-radius: 50%;
+        color: white;
+      ">
+        {{activities.count}}
+      </div>
+      <div class="activity_page_title">
+        Tasks
+      </div>
+
+      <img class="profilepicture opensubtasks" src="{% static 'school/morearrow.png' %}" data-ac="unfinished">
+    </div>
+
+    <div class="subtasks_display_unfinished" style="display: none;">
+      {% for tasks in activities %}
+      <a href="{% url 'tasks' %}">
+
+        <div class="subtasks_display_item">
+          • {{tasks.title}}
+        </div>
+
+      </a>
+
+      {% endfor %}
+    </div>
+
+
+  </div>
+{% endif %}
+</div>
+
+
+
+<div class="posts_div_classroom">
+
+
+    <div class="new_announcement dropshadowpost">
+      <h1>Make an Announcement</h1>
+        <input type="text" class="make_ann_input_gate" placeholder="Good day class!">
+
+    </div>
+
+
+
+{% for ann in page_obj %}
+
+  <div class="classroom_announcement_container" style="border-color: {{classroom.hex_color}}">
+    <div class="poster-details">
+    <a href="{% url 'profile' ann.poster.id %}"><img src="{{ann.poster.profilepicture.url}}" class="classroom_pp">
+
+    <p class="poster_name_class">{{ann.poster.role}} - {{ann.poster.first_name}} {{ann.poster.last_name}}</p></a>
+    <p class="poster_date_class">{{ann.date}}</p>
+
+      <div class="post-content">
+        {% if ann.urgency == 'Urgent' %}
+          <h3><span class="badge badge-danger">Urgent</span></h3>
+            <p class="poster_content_class">{{ann.heading}}</p>
+        {% elif ann.urgency == 'Reminder' %}
+          <h3><span class="badge badge-info">Reminder</span></h3>
+            <p class="poster_content_class">{{ann.heading}}</p>
+          {% elif ann.urgency == 'Classwork' %}
+            <h3><span class="badge badge-success">Classwork</span></h3>
+              <strong><p class="poster_content_class">{{ann.heading}}</p></strong>
+              <a href="{% url 'tasks' %}"><button type="button" class="YesButton dropshadowpost">Go to Classworks</button></a>
+        {% endif %}
+
+      </div>
+
+
+
+
+    </div>
+  </div>
+
+{% endfor %}
+
+</div>
+</div>
+
+<style media="screen">
+
+.newclass-div img {
+  width: 100px;
+  height: 100px;
+}
+
+    @media (pointer:none), (pointer:coarse) {
+      .newclass-div {
+        width: 95%;
+        margin-top: 500px;
+        font-size: 80px;
+      }
+
+      .newclass-announcement-div {
+          width: 95%;
+          margin-top: 200px;
+          font-size: 40px;
+      }
+
+      .newclass-announcement-div img {
+          width: 200px;
+          height: 200px;
+      }
+
+      .newclass-div img {
+        width: 200px;
+        height: 200px;
+      }
+    }
+
+</style>
+
+{% if user.role == 'Teacher' %}
+
+  <!-- Delete confirmation -->
+
+  <div style="display: none;" class="deleteclass-teacher-form">
+    <div class="dim-form">
+      <div class="newclass-div">
+        <center>
+
+          <img src="{{user.profilepicture.url}}" style="
+            object-fit:cover;
+            border-radius:50%;
+          ">
+          <h1 style="
+            font-family: Montserrat;
+          ">Are you sure you want to delete this class?</h1>
+          <a href="{% url 'deleteclassroom' classroom.id %}"><button type="button" name="button" class="YesButton">YES</button></a>
+          <button type="button" name="button" data-ab="close-classroom-delete-form" class="NoButton">NO</button>
+        </center>
+      </div>
+    </div>
+  </div>
+
+{% endif %}
+
+<div style="display: none;" class="make_announcement_div">
+  <div class="dim-form">
+    <div class="newclass-announcement-div">
+      <center>
+
+        <img src="{{user.profilepicture.url}}" style="width: 100px; height: 100px;" class="dropshadowpost profilepicture">
+        <h1>Create Announcement</h1>
+        <form class="new_announcement_form" action="" method="post">{% csrf_token %}
+          Announcement:
+          <textarea class="naf_heading" name="heading" placeholder="What would you like to announce?"></textarea>
+          {% if user.role == 'Teacher' %}
+          Post on:
+          <select class="naf_rooms" class="" name="classes" multiple>
+            {% for teachclass in teacher_classrooms %}
+              <option value="{{teachclass.id}}"
+              {% if teachclass.id == classroom.id %}
+                selected="selected"
+              {% endif %}
+              >{{teachclass.classname}} - [#{{teachclass.id}}]</option>
+            {% endfor %}
+          </select>
+          Urgency:
+            <select class="naf_urg" name="urgency">
+              <option value="Casual">Casual</option>
+              <option value="Reminder">Reminder</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          {% endif %}
+          <button type="button" name="button" data-ae="close_ann_input_gate" class="NoButton">Cancel</button>
+          <input type="submit" class="YesButton" value="Post">
+        </form>
+
+      </center>
+    </div>
+  </div>
+</div>
+
+<div style="display: none;" class="unenroll_fromClass">
+  <div class="dim-form">
+    <div class="newclass-div">
+      <center>
+
+        <h1 style="
+          font-family: Montserrat;
+        ">Are you sure you want to leave this class?</h1>
+        <img src="{% static 'school/unenroll.png' %}" style="
+          display: block;
+          width: 150px;
+          height: 160px;
+         -webkit-filter: drop-shadow(5px 5px 5px #222);
+         filter: drop-shadow(5px 5px 5px #222);
+         margin: 40px;
+        ">
+        <a href="{% url 'unenroll' classroom.id %}"><button type="button" name="button" class="YesButton">YES</button></a>
+        <button type="button" name="button" data-cc="close_confirmLeave" class="NoButton">NO</button>
+      </center>
+    </div>
+  </div>
+</div>
+
+  <script src="{% static 'school/newclass.js' %}">
+  </script>
+
+  <script>
+
+    if ( window.history.replaceState ) {
+      window.history.replaceState( null, null, window.location.href );
+    }
+
+    function confirmleave(element) {
+      $('.unenroll_fromClass').fadeIn(100);
+    }
+
+    document.addEventListener('click', event => {
+      const clicktarget = event.target
+
+      if (clicktarget.className == 'togglechangecoverphoto') {
+        $('.deleteclass-teacher-form').fadeIn(100);
+
+      }
+
+      if (clicktarget.dataset.cc == 'close_confirmLeave') {
+        $('.unenroll_fromClass').fadeOut(100);
+      }
+
+      if (clicktarget.dataset.ac == 'unfinished') {
+        $('.subtasks_display_unfinished').fadeToggle(100);
+      }
+
+      if (clicktarget.dataset.ac == 'all') {
+        $('.subtasks_display_all').fadeToggle(100);
+      }
+
+
+
+    });
+  </script>
+{% endblock %}

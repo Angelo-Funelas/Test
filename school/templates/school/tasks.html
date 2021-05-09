@@ -1,0 +1,509 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<style>
+  .sidebar_div {
+    background-color: white;
+    height: 100%;
+    position: fixed;
+    width: 250px;
+    top: 0;
+    -webkit-box-shadow: 10px 10px 35px 0px rgba(0,0,0,0.48);
+    -moz-box-shadow: 10px 10px 35px 0px rgba(0,0,0,0.48);
+    box-shadow: 10px 10px 35px 0px rgba(0,0,0,0.48);
+    padding: 15px;
+    padding-top: 80px;
+    overflow-y: scroll;
+  }
+
+  .sidebar_div::-webkit-scrollbar {
+    display: none;
+  }
+
+  .progress_bar_tasks {
+    height: 25px;
+    width: 100%;
+  }
+
+  @keyframes slidein {
+    0% {
+      background-color: #0be881;
+      filter: hue-rotate(0deg);
+    }
+
+    50% {
+      background-color: #05c46b;
+    }
+
+    100% {
+      background-color: #0be881;
+      {% if tasks_finished_percent == '100.' %}
+        filter: hue-rotate(360deg);
+      {% endif %}
+    }
+  }
+
+  .activity_page_gate {
+    width: 100%;
+    height: 50px;
+    padding: 10px;
+    font-family: Roboto;
+    cursor: pointer;
+    background-color: #d1d8e0;
+    margin-bottom: 1px;
+  }
+
+  .activity_page_title {
+    display: inline-block;
+  }
+
+  .subtasks_display_item {
+    margin-left: 10px;
+    padding: 10px;
+    width: 100%;
+    border: none 1px black;
+    padding: 5px;
+    cursor: pointer;
+  }
+
+  .subtasks_display_item:hover {
+    border: solid 1px black;
+  }
+
+  .opensubtasks {
+      width: 30px;
+      float: right;
+      transition: transform .2s;
+  }
+
+  .opensubtasks:hover {
+    background-color: #d1d8e0;
+    transform: rotate(-180deg)
+  }
+
+  .taskdiv_task_content {
+    margin-top: 50px;
+    background-color: #bdc3c7;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+  }
+
+.task_button_lime {
+  padding: 10px;
+  background-color: #2ecc71;
+  border: none;
+  color: white;
+  border-radius: 15px;
+  float: right;
+  transition: background-color .1s;
+  transition: transform .1s;
+  margin-bottom: 50px;
+  margin-right: 10px;
+}
+
+.task_button_lime:hover {
+  background-color: #27ae60;
+  transform: scale(1.1);
+}
+
+.task_button_turnedIn {
+  padding: 10px;
+  background-color: #95a5a6;
+  border: none;
+  color: white;
+  border-radius: 15px;
+  float: right;
+  transition: background-color .1s;
+  transition: transform .1s;
+  margin-bottom: 50px;
+  margin-right: 10px;
+}
+
+.task_button_red {
+  padding: 10px;
+  background-color: #e74c3c;
+  border: none;
+  color: white;
+  border-radius: 15px;
+  float: right;
+  transition: background-color .1s;
+  transition: transform .1s;
+  margin-bottom: 50px;
+  margin-right: 10px;
+}
+
+.task_button_red:hover {
+  background-color: #c0392b;
+  transform: scale(1.1);
+}
+
+.viewtaskdiv::-webkit-scrollbar {
+  display: none;
+}
+
+</style>
+
+<div class="sidebar_div">
+
+  <h1 style="
+    font-family: Montserrat;
+  ">Tasks</h1>
+  <p style="font-family: Lato;">
+    {% if tasks_finished_percent != '100.' %}
+      {{activities.count}} Unfinished Task/s
+    {% else %}
+      All Tasks Compplete!
+    {% endif %}
+  </p>
+
+  <style>
+    .progress_bar_inner {
+        width: {{tasks_finished_percent}}%;
+        height: 100%;
+        float: left;
+        border-radius: 0px 25px 25px 0px;
+        text-align: center;
+        padding: 6px;
+        font-family: Montserrat;
+        background: rgb(129,236,236);
+        animation: grow 2s;
+        color: #f5f6fa;
+        background: linear-gradient(90deg, rgba(129,236,236,1) 0%, rgba(0,206,201,1) 35%, rgba(116,185,255,1) 73%, rgba(9,132,227,1) 100%);
+      }
+
+      @keyframes grow {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: {{tasks_finished_percent}}%;
+        }
+      }
+
+  </style>
+
+  <div style="
+    width: 100%;
+    height: 40px;
+    border: solid;
+    border-color: black;
+    overflow: hidden;
+    border-radius: 20px;
+    margin-bottom: 80px;
+  ">
+    <div class="progress_bar_inner">
+      {{tasks_finished_percent}}%
+    </div>
+  </div>
+
+<div style="margin-bottom: 100px;">
+
+  <div class="activity_page_gate">
+    <div style="
+      display: inline-block;
+      background-color: #26de81;
+      text-align: center;
+      width: 30px;
+      height: 30px;
+      padding: 3px;
+      border-radius: 50%;
+      color: white;
+    ">
+      {{activities.count}}
+    </div>
+    <div class="activity_page_title">
+      Unfinished
+    </div>
+
+    <img class="profilepicture opensubtasks" src="{% static 'school/morearrow.png' %}" data-ac="unfinished">
+  </div>
+
+  <div class="subtasks_display_unfinished" style="display: none;">
+    {% for tasks in activities %}
+      <div class="subtasks_display_item" data-task_id="{{tasks.id}}">
+        • {{tasks.title}}
+      </div>
+    {% endfor %}
+  </div>
+
+
+
+
+
+  <div class="activity_page_gate">
+    <div style="
+      display: inline-block;
+      background-color: #26de81;
+      text-align: center;
+      width: 30px;
+      height: 30px;
+      padding: 3px;
+      border-radius: 50%;
+      color: white;
+    ">
+      {{activities_finished.count}}
+    </div>
+    <div class="activity_page_title">
+      Finished
+    </div>
+
+    <img class="profilepicture opensubtasks" src="{% static 'school/morearrow.png' %}" data-ac="finished">
+
+  </div>
+
+  <div class="subtasks_display_finished" style="display: none;">
+    {% for tasks in activities_finished %}
+      <div class="subtasks_display_item" data-task_id="{{tasks.id}}">
+        • {{tasks.title}}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="activity_page_gate">
+    <div class="activity_page_title">
+      Missed
+    </div>
+
+    <img class="profilepicture opensubtasks" src="{% static 'school/morearrow.png' %}" data-ac="missed">
+
+  </div>
+
+  <div class="subtasks_display_missed" style="display: none;">
+    {% for tasks in missed_activities %}
+      <div class="subtasks_display_item" data-task_id="{{tasks.id}}">
+        • {{tasks.title}}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="activity_page_gate">
+    <div class="activity_page_title">
+      Done
+    </div>
+
+    <img class="profilepicture opensubtasks" src="{% static 'school/morearrow.png' %}" data-ac="done">
+
+  </div>
+
+  <div class="subtasks_display_done" style="display: none;">
+    {% for tasks in done_activities %}
+      <div class="subtasks_display_item" data-task_id="{{tasks.id}}">
+        • {{tasks.title}}
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+</div>
+
+<div style="
+  float: left;
+  margin-left: 250px;
+  padding: 200px 0px 0px 40px;
+  font-family: Montserrat;
+  overflow-y: scroll;
+  text-align: center;
+  width: 600px;
+  color: #bdc3c7;
+  text-shadow: 5px 5px #34495e;
+  font-size: 50px;
+" class="viewtaskdiv2">Click to View Task</div>
+
+<style>
+
+  .viewtaskdiv {
+    width: 1000px;
+  }
+
+  @media (pointer:none), (pointer:coarse) {
+
+    .sidebar_div {
+      font-size: 20px;
+    }
+
+    .viewtaskdiv {
+      width: 700px;
+      font-size: 40px;
+    }
+
+  }
+</style>
+
+<div style="
+  float: left;
+  margin-left: 250px;
+  padding: 0px 0px 0px 40px;
+  font-family: Montserrat;
+  overflow-y: scroll;
+  display: none;
+" class="viewtaskdiv">
+<input type="text" id="taskdiv_id_hidden" value="" style="display: none;">
+<div class="cover_photo">
+
+  <img src="" style="
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    object-fit: cover;
+    object-position: top;
+    z-index: -1;
+    border-radius: 0px 0px 15px 15px;
+  " class="taskdiv_image">
+</div>
+
+
+  <div style="
+    font-size: 100px;
+  " class="taskdiv_class">
+
+  </div>
+  <div class="taskdiv_task_title" style="font-size: 25px;">
+
+  </div>
+
+  <div class="taskdiv_task_content">
+
+  </div>
+
+
+  <h4 style="display: none;" id="attachedlink_title">Attached Link: </h4><a href="" class="taskdiv_task_link" target="_blank"></a>
+
+<style>
+
+  .attachedfile_viewtask {
+    border: solid 2px black;
+    border-radius: 15px;
+    padding: 10px;
+    display: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 600px;
+  }
+
+#attachedfile_title {
+  margin-top: 40px;
+}
+
+  .attachedfile_viewtask img {
+    width: 40px;
+  }
+
+</style>
+
+<br>
+<h4 style="display: none;" id="attachedfile_title">Attached File: </h4>
+<div class="attachedfile_viewtask">
+  <a href="" download>
+  <img src="{% static 'school/fileicon.png' %}">
+  <div style="
+    display: inline-block;
+    line-height: 0px;
+    margin: 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: black;
+  "></div>
+  </a>
+</div>
+
+
+  <button disabled type="button" name="button" class="task_button_turnedIn" data-act="turn_in" id="turnedIn_Status_Passed" style="display: none;">Turned in</button>
+  <button type="button" name="button" class="task_button_lime" onclick="queryTask(this)" data-act="turn_in" id="turnedIn_Status_NotPassed" style="display: none; cursor: pointer;">Turn in</button>
+
+</div>
+<script>
+
+  function queryTask(element1) {
+    $('.loading_div').fadeIn(100);
+    const action = element1.dataset.act;
+    const task_id_input = document.querySelector('#taskdiv_id_hidden').value;
+    fetch(`/viewtask/${task_id_input}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        "action": action,
+        "user_id": {{user.id}}
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+
+    });
+    location.reload();
+  }
+
+  document.addEventListener('click', event => {
+    const clicktarget = event.target
+
+    if (clicktarget.dataset.ac == 'unfinished') {
+      $('.subtasks_display_unfinished').fadeToggle(100);
+    }
+
+    if (clicktarget.dataset.ac == 'all') {
+      $('.subtasks_display_all').fadeToggle(100);
+    }
+
+    if (clicktarget.dataset.ac == 'finished') {
+      $('.subtasks_display_finished').fadeToggle(100);
+    }
+
+    if (clicktarget.dataset.ac == 'missed') {
+      $('.subtasks_display_missed').fadeToggle(100);
+    }
+
+    if (clicktarget.dataset.ac == 'done') {
+      $('.subtasks_display_done').fadeToggle(100);
+    }
+
+    if (clicktarget.className == 'subtasks_display_item') {
+      $( '.viewtaskdiv2').fadeOut(100);
+      $('.loading_div').fadeIn(100);
+      document.querySelector('.viewtaskdiv').style.display = 'block';
+      const task_id = clicktarget.dataset.task_id;
+      fetch(`/viewtask/${task_id}`, {
+        method: 'GET'
+      })
+      .then(response => response.json())
+      .then(result => {
+          document.querySelector('#taskdiv_id_hidden').value = result.activity_id;
+          document.querySelector('.taskdiv_class').innerHTML = result.forclass.name;
+          document.querySelector('.taskdiv_class').style.color = result.forclass.hex_color;
+          document.querySelector('.taskdiv_image').src = result.forclass.classcoverphoto;
+          document.querySelector('.taskdiv_task_title').innerHTML = result.title;
+          document.querySelector('.taskdiv_task_content').innerHTML = result.description;
+          document.querySelector('.taskdiv_task_link').href = result.attachedlink;
+          document.querySelector('.taskdiv_task_link').innerHTML = result.attachedlink;
+          if (result.attachedlink == '') {
+            $('#attachedlink_title').fadeOut(100);
+          } else {
+            $('#attachedlink_title').fadeIn(100);
+          }
+
+          if (result.attachedfile.url == '') {
+            $('.attachedfile_viewtask').fadeOut(100);
+            $('#attachedfile_title').fadeOut(100);
+          } else {
+            $('.attachedfile_viewtask').fadeIn(100);
+            $('#attachedfile_title').fadeIn(100);
+            document.querySelector('.attachedfile_viewtask').querySelector('a').href = result.attachedfile.url;
+            document.querySelector('.attachedfile_viewtask').querySelector('div').innerText = result.attachedfile.name;
+          }
+          document.querySelector('#turnedIn_Status_NotPassed').style.display = 'none';
+          document.querySelector('#turnedIn_Status_Passed').style.display = 'none';
+          if (result.task_finished_status == 'Passed') {
+            document.querySelector('#turnedIn_Status_Passed').style.display = 'block';
+          } else if (result.task_finished_status == 'NotPassed') {
+            document.querySelector('#turnedIn_Status_NotPassed').style.display = 'block';
+          }
+          $('.loading_div').fadeOut(100);
+      });
+    }
+  });
+</script>
+
+{% endblock %}

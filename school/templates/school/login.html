@@ -1,0 +1,147 @@
+{% extends "school/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+
+<style>
+
+  @media (pointer:none), (pointer:coarse) {
+
+    h2 {
+      font-size: 100px;
+    }
+
+    input {
+      font-family: Montserrat;
+      font-size: 60px;
+    }
+
+    .login_inputs {
+      width: 80%;
+      padding: 15px;
+      border-radius: 50px;
+    }
+
+    p {
+      font-size: 30px;
+    }
+
+  }
+</style>
+
+    <div class="login_div dropshadowpost">
+
+      <h2 style="
+        font-family: 'Montserrat', sans-serif;
+        margin-bottom: 40px;
+      ">Login</h2>
+
+      <img id="preview_profile_picture_onlogin" class="profilepicture" src=" " onerror="emptypicture(this);">
+      <h1 id="preview_name_onlogin" style="
+        font-family: 'Roboto', sans-serif;
+        color: #130f40;
+      "></h1>
+      <p id="preview_email_onlogin" style="
+        font-family: 'Lato', sans-serif;
+        line-height: 0px;
+      "></p>
+      <div class="login_div_page1">
+
+        <form class="login_page_login_form" action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <input id="username_login_form" autofocus class="login_inputs" type="text" name="username" placeholder="Username" required>
+            <p id="account_error_message" style="
+              display: none;
+              color: red;
+            ">Couldn't find your account.</p>
+        </form>
+        <input onclick="proceed()" class="login_page_login_button login_page_login_button1" type="submit" value="Next">
+      </div>
+
+      <div class="login_div_page2" style="
+        display: none;
+      ">
+
+        <form onsubmit="$('.loading_div').fadeIn(100);" class="login_page_login_form" action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <input id="hidden_username_onlogin" type="text" name="username" value="" style="
+              display: none;
+            ">
+            <input id="password_login_form" class="login_inputs" type="password" name="password" placeholder="Password" required>
+            <br>
+            <input class="login_page_login_button" type="submit" value="Login">
+        </form>
+
+
+      </div>
+
+
+
+      <br>
+
+      <p>Don't have an account? <a href="{% url 'register' %}">Register here.</a></p>
+
+    </div>
+
+
+
+    <script>
+
+      document.querySelector('.login_page_login_form').addEventListener('submit', (event) => {
+        document.querySelector('.login_page_login_button1').click()
+        event.preventDefault()
+      })
+
+      function proceed() {
+
+        if ($('.login_div_page1:hidden').length == 0) {
+          $('.loading_div').fadeIn(100);
+          const username = document.querySelector('#username_login_form').value;
+          document.querySelector('#hidden_username_onlogin').value = username;
+
+          fetch('/confirmuser', {
+            method: 'POST',
+            body: JSON.stringify({
+              "username": username
+            })
+          })
+          .then(response => response.json())
+          .then(result => {
+              if (result.user_exists == 'true') {
+                document.querySelector('#preview_name_onlogin').innerHTML = `${result.first_name} ${result.last_name}`;
+                document.querySelector('#preview_profile_picture_onlogin').src = result.profilepicture_url;
+                document.querySelector('#preview_email_onlogin').innerHTML = result.email;
+
+                console.log(result.first_name)
+                proceed_password()
+                $('.login_div_page2').fadeIn(100);
+                $('.login_div_page1').fadeOut(100);
+              } else if (result.user_exists == 'false') {
+                $('#account_error_message').fadeIn(200);
+                $('.loading_div').fadeOut(100);
+              }
+          });
+
+        }
+
+      }
+
+
+      function proceed_password() {
+        $('.loading_div').fadeOut(100);
+        $('.login_div_page2').fadeIn(100);
+        $('.login_div_page1').fadeOut(100);
+      }
+
+      function emptypicture(ele) {
+        ele.src = '{% static 'school/empty.jpg' %}';
+      }
+
+      if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+      }
+
+    </script>
+
+{% endblock %}

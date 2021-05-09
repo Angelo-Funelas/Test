@@ -1,0 +1,314 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+<style>
+
+  .class_previewstudents {
+    overflow-x: scroll;
+    height: 100%;
+  }
+
+  .profilepicturepreviewclass {
+    width: 50px;
+    height: 50px;
+    margin-top: 10px;
+  }
+
+  @media (pointer:none), (pointer:coarse) {
+
+    #join-a-classroom-div {
+      width: 90%;
+      height: 250px;
+    }
+
+    #join-a-classroom-div h1 {
+      font-size: 80px;
+    }
+
+    #join-a-classroom-div input {
+      font-size: 50px;
+    }
+
+    .class-div-sep {
+      width: 90%;
+      height: 250px;
+      font-size: 50px;
+    }
+
+    .profilepicturepreviewclass {
+      width: 100px;
+      height: 100px;
+    }
+
+  }
+</style>
+  {% if user.is_authenticated %}
+    {% if user.role == 'Student' %}
+      <div id="join-a-classroom-div" class="dropshadowpost">
+        <h1 id="title">Join a Classroom</h1>
+          <center>
+
+            <div>
+              <input type="text" name="class_id" value="" id="class-code" class="checkclasscode" placeholder="Enter Class ID">
+              <input type="submit" value="Join" onclick="checkclass(this)" class="YesButton">
+            </div>
+            <p id="classroom_error_message" style="
+              display: none;
+              color: red;
+            ">Classroom does not Exist.</p>
+          </center>
+
+          <div style="display: none;">
+            <form id="classcode-div" action="{% url 'classr' %}" method="post">{% csrf_token %}
+              <input type="text" name="class_id" value="" id="class-code-hidden" placeholder="Enter Class ID">
+              <input type="password" name="class_password" id="class-password-hidden">
+              <input type="submit" value="Join" id="class-code-submit">
+            </form>
+          </div>
+
+
+        </div>
+    {% elif user.role == 'Teacher' %}
+
+      <div id="make-a-classroom-div" class="createclass dropshadowpost">
+        <h1 id="title" class="createclass">Create +</h1>
+      </div>
+
+    {% endif %}
+
+    <style>
+        .class_noClass {
+          margin-left: auto;
+          margin-right: auto;
+          background-color: #18dcff;
+          padding: 10px;
+          width: 750px;
+          height: 250px;
+          border-radius: 25px;
+          font-family: Montserrat;
+          color: white;
+          padding-top: 100px;
+          margin-bottom: 100px;
+          font-size: 25px;
+        }
+    </style>
+
+    <div class="classes-container">
+    <center>
+    {% for class in classes %}
+      <a href="{% url 'classroom_page' class.id %}">
+      <div class="class-div-sep dropshadowpost">
+        <div class="student-class-div" style="background-color: {{class.hex_color}};">
+          <img onerror="emptypicture(this)" class="teacher-profilepic-class" src="{{class.teacher.profilepicture.url}}">
+          <div class="student-class-post">
+          <p class="class-info-sum">{{class.classname}}</p>
+          <p class="class-student-count">{{class.students.count}} Student(s)</p>
+          </div>
+        </div>
+        <div class="class_previewstudents">
+          {% for student in class.students.all %}
+            <img src="{{student.profilepicture.url}}" class="profilepicture profilepicturepreviewclass dropshadowpost">
+          {% endfor %}
+        </div>
+
+      </div>
+      </a>
+    {% empty %}
+      {% if user.role == 'Teacher' %}
+        <div class="class_noClass dropshadowpost">
+          Create a classroom to view them here
+        </div>
+      {% else %}
+        <div class="class_noClass dropshadowpost">
+          Enter a classroom id to join a classroom
+        </div>
+      {% endif %}
+    {% endfor %}
+    </center>
+  {% endif %}
+
+  {% if user.role == 'Teacher' %}
+<div style="display: none;" class="createclass-teacher-form">
+  <div class="dim-form">
+    <div class="newclass-div" id="newclass_div_new">
+      <center>
+
+        <img src="{{user.profilepicture.url}}" style="
+          object-fit:cover;
+          border-radius:50%;
+          -webkit-box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.75);
+          -moz-box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.75);
+          box-shadow: 0px 0px 32px -1px rgba(0,0,0,0.75);
+        ">
+        <form class="new-class-form" action="{% url 'newclassroom' %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
+          <a href="#" class="close-classroom-new-form"></a>
+
+          <style>
+
+            #newclass_div_new {
+              z-index: 10;
+              margin-top: 50px;
+              border: solid 10px #1abc9c;
+            }
+
+            .newclassroom_inputfield {
+              padding: 10px;
+              border-radius: 10px;
+              width: 400px;
+              background-color: #bdc3c7;
+              border: none;
+              outline: none;
+              font-family: Montserrat;
+            }
+
+            .newclassroom_main {
+              display: block;
+              margin: 10px;
+            }
+
+            .newclassroom_main_button {
+              display: block;
+            }
+
+            .filefield {
+              cursor: pointer;
+              width: 300px;
+              display: inline-block;
+            }
+
+            .heading_classroomNew {
+                font-family: Montserrat;
+            }
+
+            .colorInput {
+              width: 85px;
+              height: 75px;
+              background-color: #2ecc71;
+              cursor: pointer;
+            }
+
+          #newclass_div_new img {
+            width: 100px;
+            height: 100px;
+          }
+
+          @media (pointer:none), (pointer:coarse) {
+            #newclass_div_new {
+              width: 96%;
+              height: 1000px;
+              font-size: 40px;
+              margin-top: 200px;
+            }
+
+            #newclass_div_new input[type=text] {
+              width: 90%;
+            }
+
+            #newclass_div_new input {
+              margin-top: 20px;
+            }
+
+            #newclass_div_new input[type=checkbox] {
+              width: 50px;
+              height: 50px;
+              display: inline-block;
+            }
+
+            #newclass_div_new img {
+              width: 250px;
+              height: 250px;
+            }
+          }
+          </style>
+
+          <input class="newclassroom_inputfield newclassroom_main" maxlength="20" id="classroom_name" type="text" name="classroom_name" placeholder="Class Name">
+          <p class="heading_classroomNew">Cover Photo:</p>
+          <input class="newclassroom_main YesButton filefield" type="file" name="coverphotoimage">
+          <br>
+          <p class="heading_classroomNew" style="display: inline-block;">Accent Color:</p>
+          <input class="newclassroom_main colorInput YesButton" maxlength="10" id="hex_code" type="color" name="hex_color" onchange="changebackground()">
+          <p class="heading_classroomNew" style="display: inline-block;">Password Protected:</p> <input type="checkbox" value="True" onclick="$('#password_input_newclass').fadeToggle(100);">
+          <input class="newclassroom_inputfield newclassroom_main" type="password" id="password_input_newclass" name="password" style="display: none;" placeholder="Classroom Password">
+          <input type="submit" class="newclassroom_main_button YesButton">
+        </form>
+      </center>
+    </div>
+  </div>
+</div>
+
+  {% endif %}
+
+  <div style="display: none;" class="password_div">
+    <div class="dim-form">
+      <div class="newclass-div">
+        <center>
+
+          <h1 style="
+            font-family: Montserrat;
+          ">This classroom is Private</h1>
+          <input style="
+            width: 60%;
+            padding: 15px 10px;
+            font-family: 'Montserrat';
+            outline: none;
+            background-color: #bdc3c7;
+            border: none;
+            border-radius: 20px;
+          " type="password" name="class_id" value="" id="class-password-input" class="checkclasscode" placeholder="Enter Password" required>
+          <button type="button" name="button" class="YesButton" onclick="passwordPost()">Join</button>
+          <button type="button" name="button" onclick="cancel_password(this)" class="NoButton">Cancel</button>
+        </center>
+      </div>
+    </div>
+  </div>
+
+<script src="{% static 'school/newclass.js' %}">
+</script>
+
+<script>
+
+  function changebackground() {
+    document.querySelector('#newclass_div_new').style.borderColor = document.querySelector('#hex_code').value;
+  }
+
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
+
+  function passwordPost() {
+    document.querySelector('#class-password-hidden').value = document.querySelector('#class-password-input').value;
+    document.querySelector('#class-code-submit').click();
+  }
+
+  function cancel_password(cancelButton) {
+    $('.password_div').fadeOut(100);
+  }
+
+  function checkclass(target) {
+    $('.loading_div').fadeIn(100);
+    const class_code_id = target.parentElement.querySelector('.checkclasscode').value
+    fetch(`/checkclass/${class_code_id}`, {
+      method: 'GET'
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.password_exists == 'true') {
+          document.querySelector('#class-code-hidden').value = class_code_id;
+          $('.password_div').fadeIn(100);
+          $('#classroom_error_message').fadeOut(100);
+        } else if (result.password_exists == 'false') {
+          if (result.exists == 'false') {
+            $('#classroom_error_message').fadeIn(100);
+          } else {
+            document.querySelector('#class-code-hidden').value = class_code_id;
+            document.querySelector('#class-code-submit').click()
+            $('#classroom_error_message').fadeOut(100);
+          }
+        }
+
+    });
+    $('.loading_div').fadeOut(100);
+  }
+
+</script>
+{% endblock %}

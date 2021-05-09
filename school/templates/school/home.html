@@ -1,0 +1,481 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<style>
+  .home_widget_container {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+  }
+  .progress_bar_inner {
+      width: {{tasks_finished_percent}}%;
+      height: 100%;
+      float: left;
+      border-radius: 0px 25px 25px 0px;
+      text-align: center;
+      padding: 6px;
+      font-family: Montserrat;
+      background: rgb(129,236,236);
+      animation: grow 2s;
+      color: #f5f6fa;
+      background: linear-gradient(90deg, rgba(129,236,236,1) 0%, rgba(0,206,201,1) 35%, rgba(116,185,255,1) 73%, rgba(9,132,227,1) 100%);
+    }
+
+    @keyframes grow {
+      0% {
+        width: 0%;
+      }
+      100% {
+        width: {{tasks_finished_percent}}%;
+      }
+    }
+
+  .home_calendar {
+    background-color: white;
+    width: 280px;
+    border-radius: 20px;
+    height: 340px;
+    overflow: hidden;
+    margin-right: 40px;
+  }
+
+  .home_calendar_month {
+    height: 100px;
+    background-color: #e84118;
+    color: white;
+    font-family: Montserrat;
+    font-size: 40px;
+    text-align: center;
+    padding: 25px;
+    border-radius: 5px;
+  }
+
+  .home_calendar_day {
+    color: black;
+    font-family: Montserrat;
+    font-size: 150px;
+    text-align: center;
+  }
+
+  .home_noPosts {
+    padding: 10px;
+    width: 800px;
+    height: 200px;
+    background-color: #b2bec3;
+    margin: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 25px;
+    font-size: 50px;
+    text-align: center;
+    font-family: Montserrat;
+    color: #636e72;
+    padding-top: 50px;
+  }
+
+</style>
+
+  {% if user.role == 'Student' %}
+    <div class="home_widget_container">
+
+      <div class="home_calendar dropshadowpost" style="float: left;">
+          <div class="home_calendar_month">
+          </div>
+          <div class="home_calendar_day">
+          </div>
+      </div>
+
+      <div id="progress-div" class="dropshadowpost" style="">
+        <h1 style="
+          font-family: Montserrat;
+        ">Dashboard</h1>
+        <div style="
+          width: 100%;
+          height: 40px;
+          border: solid;
+          border-color: black;
+          overflow: hidden;
+          border-radius: 20px;
+          margin-bottom: 80px;
+          background: rgb(47,54,64);
+          background: linear-gradient(270deg, rgba(47,54,64,1) 0%, rgba(53,59,72,1) 100%);
+        ">
+          <div class="progress_bar_inner">
+            {{tasks_finished_percent}}%
+          </div>
+        </div>
+        <h3 style="
+          font-family: Montserrat;
+        ">Classwork ({{activities.count}})</h3>
+        <div style="
+          width: 100%;
+          border-bottom: solid 2px black;
+          border-top: solid 2px black;
+          padding: 50px 20px 50px 20px;
+        ">
+
+        <style>
+
+          .home_unfinished_activity {
+            border-radius: 40px;
+            height: 90px;
+            display: inline-block;
+            overflow: hidden;
+            transition: transform .1s;
+            cursor: pointer;
+            margin: 4px;
+            padding-right: 10px;
+            animation: leBounceZoomIn 2s;
+          }
+
+          .home_unfinished_activity:hover {
+            transform: scale(1.06);
+          }
+
+          .home_unfinished_activity_profilepicture {
+            margin: 15px;
+            width: 60px;
+            height: 60px;
+            display: inline-block;
+          }
+
+          .activity_title_home {
+            display: inline;
+            font-family: Montserrat;
+            color: white;
+            margin-right: 10px;
+          }
+
+          @keyframes leBounceZoomIn {
+              0% {
+                transform: scale(0)
+              }
+              25%, 55%, 85%, 100% {
+                  animation-timing-function: ease-out;
+                  transform: scale(1);
+              }
+              41%, 44% {
+                  animation-timing-function: ease-in;
+                  transform: scale(1.3);
+              }
+              70% {
+                  animation-timing-function: ease-in;
+                  transform: scale(1.22);
+              }
+              90% { transform: scale(1.05) }
+          }
+
+        </style>
+
+          {% for activity in activities %}
+          <a href="{% url 'tasks' %}">
+
+            <div class="home_unfinished_activity" style="background-color: {{activity.for_class.hex_color}}">
+              <img src="{{activity.for_class.teacher.profilepicture.url}}" class="profilepicture home_unfinished_activity_profilepicture">
+              <p style="
+                color: white;
+                position: absolute;
+                top: 20px;
+                left: 100px;
+                font-family: lato;
+                line-height: 0px;
+              ">{{activity.for_class.classname}}</p>
+              <h6 class="activity_title_home">{{activity.title}}</h6>
+            </div>
+
+          </a>
+          {% empty %}
+            <div style="text-align: center;">
+              Good Job, you finished all your classwork.
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  {% elif user.role == 'Teacher' %}
+
+  <div class="home_calendar dropshadowpost" style="margin-left: auto; margin-right: auto; margin-top: 50px;">
+      <div class="home_calendar_month">
+      </div>
+      <div class="home_calendar_day">
+      </div>
+  </div>
+
+  {% endif %}
+
+        <script>
+          var date = new Date();
+          document.querySelector('.home_calendar_day').innerHTML = date.getDate();
+          document.querySelector('.home_calendar_month').innerHTML = date.toLocaleString('default', { month: 'long' });
+        </script>
+  <p id="current-page" style="margin-top: 100px;">Page {{ user_posts.number }} of {{ user_posts.paginator.num_pages }}.</p>
+  {% for post in user_posts %}
+
+
+
+    <div class="post_object dropshadowpost" data-postid="{{post.id}}" style="margin-top: 25px; margin-bottom: 50px;">
+
+        <div style="padding-left: 15px; padding-top: 15px; margin-bottom: 5px;">
+          <a href="{% url 'profile' post.parent_user.id %}">
+          <img class="profilepicture" src="{{post.parent_user.profilepicture.url}}" onerror="emptypicture(this)" style="
+            width: 60px;
+            height: 60px;
+            position: absolute;
+          ">
+          <div style="
+            display: inline-block;
+            margin-left: 70px;
+            margin-top: 10px;
+            line-height: 20px;
+            color: black;
+            font-family: 'Roboto', sans-serif;
+          ">
+            {{post.parent_user.first_name}} {{post.parent_user.last_name}}
+            <p style="
+              color: #b2bec3;
+              font-size: 12px;
+              font-family: 'Lato', sans-serif;
+            ">{{post.date}}</p>
+          </div>
+            </a>
+
+        </div>
+
+
+        <div style="
+          padding-left: 15px;
+          padding-bottom: 5px;
+          font-size: 20px;
+          {% if post.uploadedfile %}
+          {% else %}
+            font-size: 28px;
+          {% endif %}
+        " class="post_content_text">{{post.content|linebreaks}}
+          <textarea type="text" name="post_content" class="post_content" style="display: none;">{{post.content}}</textarea>
+          <button class="save_button_1" type="button" name="savepost" onclick="savepost(this)" style="
+            display: none;
+          ">Save</button>
+        </div>
+
+      {% if post.uploadedfile %}
+        <div class="post_image_div">
+          <div class="loader" style="
+            position: absolute;
+            margin-top: 100px;
+            left: 0;
+            right: 0;
+            border: 40px solid #461A42;
+            border-radius: 50%;
+            border-top: 40px solid #e056fd;
+            border-bottom: 40px solid #be2edd;
+          ">
+
+          </div>
+          <img onload="this.parentElement.querySelector('.loader').style = 'display: none;'" src="{{post.uploadedfile.url}}" class="post_image_img">
+        </div>
+      {% endif %}
+
+      <div style="
+        width: 90%;
+        padding: 5px;
+        border-bottom: 1px solid #747d8c;
+        border-top: 1px solid #747d8c;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+      ">
+      {% if user.is_authenticated %}
+        <button onclick="comment_focus(this)" class="comment_button_button"><img src="{% static 'school/comment.png' %}" style="width: 30px; margin-right: 4px;">Comment</button>
+      {% else %}
+        <a href="{% url 'login' %}"><button class="comment_button_button"><img src="{% static 'school/comment.png' %}" style="width: 30px; margin-right: 4px;">Login to comment</button></a>
+      {% endif %}
+      </div>
+
+      {% if user.is_authenticated %}
+      <div style="margin-top: 30px;">
+        <img src="{{user.profilepicture.url}}" class="profilepicture" style="
+          width: 40px;
+          height: 40px;
+          position: absolute;
+          left: 14px;
+        ">
+
+        <form onsubmit="editcomment(this)" data-postid="{{post.id}}" class="comment_form" method="PUT">
+          <input class="comment_input_new" placeholder="Write a comment..." type="text" required>
+        </form>
+      </div>
+
+      {% endif %}
+
+      <div class="comments_box">
+
+        <style>
+          .comment_p {
+            margin-left: 15px;
+          }
+
+          .comment_pp {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            margin-top: 4px;
+          }
+
+          .comment_div_content {
+            background-color: #f1f2f6;
+            display: inline-block;
+            width: 400px;
+            padding: 10px;
+            border-radius: 15px;
+            margin-left: 45px;
+            margin-bottom: 15px;
+            overflow: hidden;
+          }
+
+          .comment_heading {
+            display: inline-block;
+            line-height: 0px;
+          }
+
+          .comment_date {
+              font-size: 12px;
+              display: inline-block;
+              line-height: 2px;
+          }
+
+          .comment_content {
+            line-height: 18px;
+          }
+        </style>
+
+        {% for comment in comments reversed %}
+          {% if comment.parent_ann == post %}
+            <div class="comment_p">
+
+              <img src="{{comment.user.profilepicture.url}}" class="comment_pp profilepicture">
+
+              <div class="comment_div_content"><p class="comment_heading">
+                <strong>{{comment.user.first_name}} {{comment.user.last_name}}</strong></p> •
+                <p class="comment_date">{{comment.date}}</p>
+                <p class="comment_content">{{comment.content}}</p>
+              </div>
+
+            </div>
+          {% endif %}
+
+        {% endfor %}
+        </div>
+        </div>
+      {% empty %}
+        <div class="home_noPosts dropshadowpost">
+          No Posts
+        </div>
+      {% endfor %}
+
+      <p id="current-page">Page {{ user_posts.number }} of {{ user_posts.paginator.num_pages }}.</p>
+        <div class="pagination">
+
+
+                {% if user_posts.has_previous %}
+                <div id="lastpage">
+                    <a id="first" href="?page=1">&laquo; first</a>
+                    <a id="previous" href="?page={{ user_posts.previous_page_number }}">previous</a>
+                </div>
+                {% endif %}
+
+
+
+
+
+                {% if user_posts.has_next %}
+                <div id="nextpage">
+                    <a id="next" href="?page={{ user_posts.next_page_number }}">next</a>
+                    <a id="last" href="?page={{ user_posts.paginator.num_pages }}">last &raquo;</a>
+                </div>
+                {% endif %}
+
+        </div>
+
+  <!-- Site footer -->
+  <footer class="site-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-6">
+        <h6>About</h6>
+        <p class="text-justify">Phern wants Educators and students to be able to communicate better. We aim to help by giving them a platform to be able to communicate more naturally.</p>
+      </div>
+
+      <div class="col-xs-6 col-md-3">
+        <h6>Categories</h6>
+        <ul class="footer-links">
+          <li>School</li>
+          <li>Classrooms</li>
+          <li>Students</li>
+          <li>Register</li>
+          <li>Login</li>
+          <li>Contacts</li>
+        </ul>
+      </div>
+
+      <div class="col-xs-6 col-md-3">
+        <h6>Quick Links</h6>
+        <ul class="footer-links">
+          <li>About Us</li>
+          <li>Contact Us</li>
+          <li>Contribute</li>
+          <li>Privacy Policy</li>
+          <li>Sitemap</li>
+        </ul>
+      </div>
+    </div>
+    <hr>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-sm-6 col-xs-12">
+        <p class="copyright-text">Copyright &copy; 2020 All Rights Reserved by Phern
+        </p>
+      </div>
+
+    </div>
+  </div>
+  </footer>
+
+<script>
+
+  function comment_focus(comment_button) {
+    comment_button.parentElement.parentElement.querySelector('form').querySelector('input').focus()
+  }
+
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
+
+  var commentform = document.getElementsByClassName('comment_form');
+  for (var i = 0; i < commentform.length; i++) {
+      commentform[i].addEventListener('submit', (event) => {
+        event.preventDefault()
+      })
+    }
+
+
+  function editcomment(comment) {
+    const commentvalue = comment.querySelector('input').value;
+    fetch(`/editcomment/${comment.dataset.postid}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        content: commentvalue,
+        edit: 'False'
+      })
+    });
+    comment.querySelector('input').value = '';
+
+    location.reload();
+  }
+
+</script>
+
+{% endblock %}

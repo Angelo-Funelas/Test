@@ -1,0 +1,120 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<style>
+
+    @media (pointer:none), (pointer:coarse) {
+
+      h1 {
+        font-size: 100px;
+      }
+
+      .YesButton {
+        font-size: 60px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .login_register_div {
+        transform: scale(1.2);
+        font-size: 30px;
+        margin-top: 250px;
+      }
+
+    }
+
+</style>
+
+    <div class="login_register_div">
+    <h1 style="
+      font-family: 'Titillium Web', sans-serif;
+    ">Register</h1>
+
+    {% if error %}
+        <div>{{ error }}</div>
+    {% endif %}
+
+    <form action="{% url 'register' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>
+          <tr>
+            <td style="width: 50%;">
+          <div class="form-group">
+              <input autocomplete="off" maxlength="20" class="about_input"  type="text" name="first_name" placeholder="First Name" required style="display: inline-block; width: 197px;">
+              <input autocomplete="off" maxlength="20" class="about_input" type="text" name="last_name" placeholder="Last Name" required style="display: inline-block; width: 197px;">
+          </div>
+          <div class="form-group">
+              <input autocomplete="off" maxlength="20" class="about_input" type="text" name="username" placeholder="Username" required>
+          </div>
+          <div class="form-group">
+              <input maxlength="100" class="about_input" type="email" name="email" placeholder="Email Address" required>
+          </div>
+          <div class="form-group">
+              <input maxlength="50" class="about_input" type="password" name="password" placeholder="Password" required>
+          </div>
+          <div class="form-group">
+              <input maxlength="50" class="about_input" type="password" name="confirmation" placeholder="Confirm Password" required>
+          </div>
+          <div class="form-group">
+              Profile Picture
+              <input oninput="previewImage()" id="profilepictureinput" class="about_input" type="file" name="profilepicture" placeholder="Profile Picture Url">
+          </div>
+          <div class="form-role">
+              Role:
+              <select class="select-role" name="role">
+              <option value="Student">Student</option>
+                <option value="Teacher">Teacher</option>
+              </select>
+            </div>
+          </td>
+          <td style="width: 50%;">
+          <img id="profilepicturepreviewimage" class="profilepicture" src="{% static 'school/empty.jpg' %}" style="
+            display: block;
+            width: 250px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            -webkit-box-shadow: 6px 7px 25px 0px rgba(0,0,0,0.75);
+            -moz-box-shadow: 6px 7px 25px 0px rgba(0,0,0,0.75);
+            box-shadow: 6px 7px 25px 0px rgba(0,0,0,0.75);
+          ">
+        </td>
+        </tr>
+        </table>
+        <input class="btn btn-primary YesButton" type="submit" value="Register">
+    </form>
+
+    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+
+  </div>
+
+  <script>
+
+    function readURL(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+        $('#profilepicturepreviewimage').attr('src', e.target.result);
+      }
+
+      reader.readAsDataURL(input.files[0]); // convert to base64 string
+    }
+  }
+
+  $("#profilepictureinput").change(function() {
+    readURL(this);
+  });
+
+    function previewImage() {
+      var x = document.getElementById("profilepictureinput").value;
+      document.getElementById("profilepicturepreviewimage").src = x;
+    }
+
+    function emptypicture() {
+      document.getElementById("profilepicturepreviewimage").src = '{% static 'school/empty.jpg' %}';
+    }
+  </script>
+
+{% endblock %}

@@ -1,0 +1,914 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<style>
+
+  #uploadimagebutton img {
+    height: 25px;
+    position: absolute;
+  }
+
+  #uploadimagebutton p {
+    display: inline-block;
+    margin: 0px;
+    margin-left: 25px;
+  }
+
+  #uploadimagebutton {
+      border: none;
+      outline: none;
+      background-color: #4cd137;
+      color: white;
+      padding: 10px;
+      padding-right: 20px;
+      font-family: 'Roboto', sans-serif;
+      border-radius: 10px;
+  }
+
+  @media (pointer:none), (pointer:coarse) {
+
+    .make_ann_input_gate {
+      font-size: 40px;
+    }
+
+    #uploadimagebutton {
+      font-size: 40px;
+    }
+
+    #uploadimagebutton p {
+      display: inline-block;
+      margin: 0px;
+    }
+
+
+    #uploadimagebutton img {
+      height: 60px;
+      position: relative;
+      left: 0;
+    }
+
+    #post_submit {
+      font-size: 40px;
+    }
+  }
+</style>
+
+<div style="
+  background-color: white;
+  width: 100%;
+  height: 580px;
+  -webkit-box-shadow: 0px 0px 9px 3px rgba(149,165,166,1);
+  -moz-box-shadow: 0px 0px 9px 3px rgba(149,165,166,1);
+  box-shadow: 0px 0px 9px 3px rgba(149,165,166,1);
+">
+<div id="profile-page-div">
+  <div class="cover_photo">
+
+    <img src="
+      {% if profile.coverphoto %}
+        {{profile.coverphoto.url}}
+      {% else %}
+        {% static 'school/defaultcoverphoto.jpg' %}
+      {% endif %}
+    " style="
+      width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      object-fit: cover;
+      height: 380px;
+      object-position: top;
+      z-index: -1;
+      border-radius: 0px 0px 15px 15px;
+      -webkit-box-shadow: 0px -200px 125px -34px rgba(0,0,0,1);
+      -moz-box-shadow: 0px -200px 125px -34px rgba(0,0,0,1);
+      box-shadow: 0px -200px 125px -34px rgba(0,0,0,1);
+    ">
+
+    {% if profile == user %}
+    <div class="changecoverphotodiv" style="
+      display: none;
+    ">
+
+      Change Cover Photo
+      <form action="{% url 'changecoverphoto' user.id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <input required name="coverphoto" type="file" placeholder="Cover Photo Picture" value="{{profile.coverphoto}}" style="
+          width: 250px;
+          outline: none;
+          background: #bdc3c7;
+          padding: 5px;
+          border-radius: 10px;
+          border-style: none;
+        "><input type="submit" name="" value="change">
+      </form>
+
+    </div>
+    <img class="togglechangecoverphoto" src="{% static 'school/edit.png' %}" style="
+      cursor: pointer;
+      display: block;
+      position: absolute;
+      width: 50px;
+      top: 320px;
+      z-index: 10;
+      background: white;
+      border-radius: 50%;
+    ">
+    {% endif %}
+  </div>
+  {% if profile == user %}
+  <img class="changeprofilepic" src="{% static 'school/camera.png' %}" style="
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    width: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    left:0;
+    right:0;
+    top: 270px;
+    z-index: 1;
+  " class="changeprofilepic">
+  <center>
+    <div style="
+      position: absolute;
+      margin-left: auto;
+      margin-right: auto;
+      top: 180px;
+      left: 0px;
+      right: 0px;
+      display: none;
+      background: white;
+      width: 400px;
+      padding: 15px;
+      border-radius: 15px;
+    " class="formchangepic">
+    Change picture
+    <form action="{% url 'changecoverphoto' user.id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+      <input required name="profilepicture" type="file" placeholder="Profile Picture" value="{{profile.profilepicture.url}}" style="
+        width: 250px;
+        outline: none;
+        background: #bdc3c7;
+        padding: 5px;
+        border-radius: 10px;
+        border-style: none;
+      "><input type="submit" name="" value="change">
+    </form>
+    </div>
+  </center>
+  {% endif %}
+  <img onerror="emptypicture(this);" class="profilepicture" src="{{ profile.profilepicture.url }}"
+  style="
+    background: black;
+    width: 180px;
+    height: 180px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    border-style: solid;
+    border-color: white;
+    position: absolute;
+    left:0;
+    right:0;
+    top: 280px;
+    border-width: 5px;
+  "
+
+  >
+</div>
+<div style="
+  margin-top: 25px;
+">
+  <h1 style="
+    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+  ">{{profile.first_name}} {{profile.last_name}}</h1>
+  <p style="
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+    color: #95a5a6;
+    line-height: 0px;
+    font-size: 20px;
+    margin-bottom: 30px;
+  ">@{{profile.username}}</p>
+  <p style="
+    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+    color: #95a5a6;
+    line-height: 5px;
+    font-size: 20px;
+  ">{{profile.role}}</p>
+
+  <div style="
+    background-color: #353b48;
+    width: 500px;
+    height: 1px;
+    margin-left: auto;
+    margin-right: auto;
+  ">
+  </div>
+
+</div>
+
+  <div class="profile_navigation_tab_wrapper">
+    <div class="profile_navigation_tab">
+      Posts
+    </div>
+    <div class="profile_navigation_tab">
+      Relationships
+    </div>
+    <div class="profile_navigation_tab">
+      Classrooms
+    </div>
+    <div class="profile_navigation_tab">
+      About
+    </div>
+  </div>
+
+</div>
+
+  <div class="profile_posts_display" style="">
+
+    {% if user.is_authenticated %}
+      {% if profile == user %}
+      <div class="new_post dropshadowpost">
+          <img onerror="emptypicture(this)" src="{{user.profilepicture.url}}" class="profilepicture" style="
+            height: 60px;
+            position: absolute;
+            width: 60px;
+          ">
+
+          <form onsubmit="$('.loading_div').fadeIn(100);" action="{% url 'profile' profile.id %}" enctype="multipart/form-data" method="post">{% csrf_token %}
+            <textarea name="content" type="text" class="make_ann_input_gate" placeholder="What's on your mind, {{user.first_name}}?" required></textarea>
+            <div id="previewImagePost" class="preview_photo" style="
+              width: 100px;
+              margin-left: 100px;
+              height: 100px;
+              object-fit: cover;
+              display: none;
+              margin-bottom: 25px;
+            "><img src="{% static 'school/x.png' %}" style="
+              width: 25px;
+              height: 25px;
+              position: absolute;
+              right: 5px;
+              top: 5px;
+              cursor: pointer;
+            " onclick="removeimagepost(this)">
+              <img id="blah" style="
+                width: 100px;
+                height: 100px;
+                border-radius: 20px;
+                object-fit: cover;
+              ">
+              <p id="image_filename" style="display: inline-block; width: 400px;"></p>
+            </div>
+            <div style="
+              height: 1px;
+              width: 100%;
+              display: block;
+              background-color: #7f8fa6;
+              margin-bottom: 10px;
+            ">
+
+            </div>
+            <div class="file_input_div">
+              <center>
+              <input type="file" name="uploadedfile" value="uploadedfile" id="imgInp" accept="image/x-png,image/gif,image/jpeg" style="display: none;">
+              <button class="dropshadowpost" id="uploadimagebutton" type="button" name="button" onclick="document.getElementById('imgInp').click();"><img src="{% static 'school/imageicon.png' %}"> <p>Upload Image</p> </button>
+              <input id="post_submit" class="dropshadowpost" type="submit" value="Post" style="
+                border: none;
+                outline: none;
+                background-color: #0097e6;
+                color: white;
+                padding: 10px 20px 10px 20px;
+                font-family: 'Roboto', sans-serif;
+                border-radius: 10px;
+              ">
+              </center>
+            </div>
+
+          </form>
+
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% for post in user_posts %}
+
+
+
+      <div class="post_object dropshadowpost" data-postid="{{post.id}}">
+
+          <div style="padding-left: 15px; padding-top: 15px; margin-bottom: 5px;">
+            <a href="{% url 'profile' post.parent_user.id %}">
+            <img class="profilepicture" src="{{post.parent_user.profilepicture.url}}" onerror="emptypicture(this)" style="
+              width: 60px;
+              height: 60px;
+              position: absolute;
+            ">
+            <div style="
+              display: inline-block;
+              margin-left: 70px;
+              margin-top: 10px;
+              line-height: 20px;
+              color: black;
+              font-family: 'Roboto', sans-serif;
+            ">
+              {{post.parent_user.first_name}} {{post.parent_user.last_name}}
+              <p style="
+                color: #b2bec3;
+                font-size: 12px;
+                font-family: 'Lato', sans-serif;
+              ">{{post.date}}</p>
+            </div>
+              </a>
+              <div class="more_post_options">
+              {% if user == profile %}
+                <img onclick="moreoptions(this)" class="more_options_button" src="{% static 'school/more.png' %}" style="
+                  cursor: pointer;
+                ">
+                <div class="more_options_div" style="
+                  position: absolute;
+                  display: none;
+                ">
+                <p class="post_option_p" onclick="deletepost(this)">Delete Post</p>
+                <p class="post_option_p" onclick="editpost(this)">Edit Post</p>
+                </div>
+                {% endif %}
+              </div>
+
+          </div>
+
+
+          <div style="
+            padding-left: 15px;
+            padding-bottom: 5px;
+            font-size: 20px;
+            {% if post.uploadedfile %}
+            {% else %}
+              font-size: 28px;
+            {% endif %}
+          " class="post_content_text">{{post.content|linebreaks}}
+            <textarea type="text" name="post_content" class="post_content" style="display: none;">{{post.content}}</textarea>
+            <button class="save_button_1" type="button" name="savepost" onclick="savepost(this)" style="
+              display: none;
+            ">Save</button>
+          </div>
+
+        {% if post.uploadedfile %}
+          <div class="post_image_div">
+            <div class="loader" style="
+              position: absolute;
+              margin-top: 100px;
+              left: 0;
+              right: 0;
+              border: 40px solid #461A42;
+              border-radius: 50%;
+              border-top: 40px solid #e056fd;
+              border-bottom: 40px solid #be2edd;
+            ">
+
+            </div>
+            <img onload="this.parentElement.querySelector('.loader').style = 'display: none;'" src="{{post.uploadedfile.url}}" class="post_image_img">
+          </div>
+        {% endif %}
+
+        <div style="
+          width: 90%;
+          padding: 5px;
+          border-bottom: 1px solid #747d8c;
+          border-top: 1px solid #747d8c;
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center;
+        ">
+        {% if user.is_authenticated %}
+          <button onclick="comment_focus(this)" class="comment_button_button"><img src="{% static 'school/comment.png' %}" style="width: 30px; margin-right: 4px;">Comment</button>
+        {% else %}
+          <a href="{% url 'login' %}"><button class="comment_button_button"><img src="{% static 'school/comment.png' %}" style="width: 30px; margin-right: 4px;">Login to comment</button></a>
+        {% endif %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <div style="margin-top: 30px;">
+          <img src="{{user.profilepicture.url}}" class="profilepicture" style="
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 14px;
+          ">
+
+          <form onsubmit="editcomment(this)" data-postid="{{post.id}}" class="comment_form" method="PUT">
+            <input class="comment_input_new" placeholder="Write a comment..." type="text" required>
+          </form>
+        </div>
+
+        {% endif %}
+
+        <div class="comments_box">
+
+          <style>
+            .comment_p {
+              margin-left: 15px;
+            }
+
+            .comment_pp {
+              width: 40px;
+              height: 40px;
+              position: absolute;
+              margin-top: 4px;
+            }
+
+            .comment_div_content {
+              background-color: #f1f2f6;
+              display: inline-block;
+              width: 400px;
+              padding: 10px;
+              border-radius: 15px;
+              margin-left: 45px;
+              margin-bottom: 15px;
+              overflow: hidden;
+            }
+
+            .comment_heading {
+              display: inline-block;
+              line-height: 0px;
+            }
+
+            .comment_date {
+                font-size: 12px;
+                display: inline-block;
+                line-height: 2px;
+            }
+
+            .comment_content {
+              line-height: 18px;
+            }
+
+          </style>
+
+          {% for comment in comments reversed %}
+            {% if comment.parent_ann == post %}
+              <div class="comment_p">
+
+                <img src="{{comment.user.profilepicture.url}}" class="comment_pp profilepicture">
+
+                <div class="comment_div_content"><p class="comment_heading">
+                  <strong>{{comment.user.first_name}} {{comment.user.last_name}}</strong></p> •
+                  <p class="comment_date">{{comment.date}}</p>
+                  <p class="comment_content">{{comment.content}}</p>
+                </div>
+
+              </div>
+            {% endif %}
+
+          {% endfor %}
+
+        </div>
+
+      </div>
+
+      {% empty %}
+        <div style="
+          margin-left: auto;
+          margin-right: auto;
+          width: 900px;
+          height: 500px;
+        ">
+          <center>
+            <h1 style="
+              margin-top: 100px;
+              font-family: Montserrat;
+              color: #747d8c;
+            ">This page is empty.</h1>
+          </center>
+        </div>
+
+    {% endfor %}
+
+    <p id="current-page">Page {{ user_posts.number }} of {{ user_posts.paginator.num_pages }}.</p>
+      <div class="pagination">
+
+
+              {% if user_posts.has_previous %}
+              <div id="lastpage">
+                  <a id="first" href="?page=1">&laquo; first</a>
+                  <a id="previous" href="?page={{ user_posts.previous_page_number }}">previous</a>
+              </div>
+              {% endif %}
+
+
+
+
+
+              {% if user_posts.has_next %}
+              <div id="nextpage">
+                  <a id="next" href="?page={{ user_posts.next_page_number }}">next</a>
+                  <a id="last" href="?page={{ user_posts.paginator.num_pages }}">last &raquo;</a>
+              </div>
+              {% endif %}
+
+      </div>
+
+  </div>
+
+  <div class="profile_relationships_display" style="display: none">
+
+<center>
+    {% if profile.role == 'Student' %}
+      <div class="profile_classroom_tab_div">
+
+          Teachers:
+          {% for teacher in teachers %}
+            <a href="{% url 'profile' teacher.id %}" style="text-decoration: none">
+            <div class="profile_classroom_tab_div_item">
+              <img onerror="emptypicture(this);" src="{{teacher.profilepicture.url}}" class="profilepicture" style="
+                width: 30px;
+                height: 30px;
+                margin-right: 20px;
+              "><p style="display: inline-block; color: black;">{{teacher.first_name}} {{teacher.last_name}}</p>
+            </div>
+            </a>
+          {% empty %}
+            <div class="profile_classroom_tab_div_item" style="background-color: #636e72;">
+                Empty
+            </div>
+          {% endfor %}
+
+      </div>
+
+      <div class="profile_classroom_tab_div">
+
+          Classmates:
+          {% for classmate in classmates %}
+            {% if classmate == profile %}
+            {% endif %}
+            {% if classmate != profile %}
+            <a href="{% url 'profile' classmate.id %}" style="text-decoration: none">
+            <div class="profile_classroom_tab_div_item" style="background-color: #00cec9;">
+              <img onerror="emptypicture(this);" src="{{classmate.profilepicture.url}}" class="profilepicture" style="
+                width: 30px;
+                height: 30px;
+                margin-right: 20px;
+              "><p style="display: inline-block; color: black;">{{classmate.first_name}} {{classmate.last_name}}</p>
+            </div>
+            </a>
+            {% endif %}
+          {% empty %}
+            <div class="profile_classroom_tab_div_item" style="background-color: #636e72;">
+                Empty
+            </div>
+
+          {% endfor %}
+
+      </div>
+
+
+      {% elif profile.role == 'Teacher' %}
+      <div class="profile_classroom_tab_div" style="width: 500px;">
+
+          Students:
+          {% for student in students %}
+            <a href="{% url 'profile' student.id %}" style="text-decoration: none">
+            <div class="profile_classroom_tab_div_item">
+              <img onerror="emptypicture(this);" src="{{student.profilepicture.url}}" class="profilepicture" style="
+                width: 30px;
+                height: 30px;
+                margin-right: 20px;
+              "><p style="display: inline-block; color: black;">{{student.first_name}} {{student.last_name}}</p>
+            </div>
+            </a>
+          {% empty %}
+            <div class="profile_classroom_tab_div_item" style="background-color: #636e72;">
+                Empty
+            </div>
+          {% endfor %}
+
+      </div>
+      {% else %}
+        <div style="
+          margin-left: auto;
+          margin-right: auto;
+          width: 900px;
+          height: 500px;
+        ">
+          <center>
+            <h1 style="
+              margin-top: 100px;
+              font-family: Montserrat;
+              color: #747d8c;
+            ">This page is empty.</h1>
+          </center>
+        </div>
+      {% endif %}
+</center>
+
+  </div>
+
+  <div class="profile_classrooms_display" style="display: none">
+<center>
+  {% if profile.role == 'Teacher' %}
+    <div class="profile_classroom_tab_div" style="width: 500px;">
+      Classrooms Owned:
+      {% for ownedclassroom in ownedClassrooms %}
+      <a href="{% url 'classroom_page' ownedclassroom.id %}" style="text-decoration: none">
+      <div class="profile_classroom_tab_div_item" style="
+        background-color: {{ownedclassroom.hex_color}};
+      ">
+      <img onerror="emptypicture(this);" src="{{ownedclassroom.teacher.profilepicture.url}}" class="profilepicture" style="
+        width: 30px;
+        height: 30px;
+        margin-right: 20px;
+      ">
+        {{ownedclassroom.classname}}
+      </div>
+      </a>
+      {% empty %}
+        <div class="profile_classroom_tab_div_item" style="background-color: #636e72;">
+            Empty
+        </div>
+      {% endfor %}
+    </div>
+
+  {% elif profile.role == 'Student' %}
+    <div class="profile_classroom_tab_div">
+
+        Classrooms Joined:
+        {% for joinedclassroom in joinedClassrooms %}
+        <a href="{% url 'classroom_page' joinedclassroom.id %}">
+        <div class="profile_classroom_tab_div_item" style="
+          background-color: {{joinedclassroom.hex_color}};
+        ">
+        <img onerror="emptypicture(this);" src="{{joinedclassroom.teacher.profilepicture.url}}" class="profilepicture" style="
+          width: 30px;
+          height: 30px;
+          margin-right: 20px;
+        ">
+          {{joinedclassroom.classname}}
+        </div>
+        </a>
+        {% empty %}
+          <div class="profile_classroom_tab_div_item" style="background-color: #636e72;">
+              Empty
+          </div>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+      <div style="
+        margin-left: auto;
+        margin-right: auto;
+        width: 900px;
+        height: 500px;
+      ">
+        <center>
+          <h1 style="
+            margin-top: 100px;
+            font-family: Montserrat;
+            color: #747d8c;
+          ">This page is empty.</h1>
+        </center>
+      </div>
+
+    {% endif %}
+
+
+</center>
+  </div>
+
+  <div class="profile_about_display" style="display: none">
+    <div style="
+      background-color: #f5f6fa;
+      margin-top: 50px;
+      margin-bottom: 100px;
+      width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 400px;
+      border-radius: 20px;
+      -webkit-box-shadow: 0px 10px 22px -4px rgba(0,0,0,0.75);
+      -moz-box-shadow: 0px 10px 22px -4px rgba(0,0,0,0.75);
+      box-shadow: 0px 10px 22px -4px rgba(0,0,0,0.75);
+      padding: 20px;
+    ">
+
+      <h1>About</h1>
+      <div>
+        Date Joined: {{profile.date_joined.date}}<br>
+
+
+        <form action="{% url 'updateprofile' profile.id %}" method="post">{% csrf_token %}
+          {% if user == profile %}
+          <button type="button" name="button" class="edit_profile_button" style="
+              padding: 10px 18px 10px 18px;
+              border-radius: 10px;
+              outline: none;
+              border: none;
+              background-color: #2ecc71;
+              font-family: Montserrat;
+              color: white;
+              transition: background-color .1s, transform .1s;
+              -webkit-box-shadow: 0px 0px 24px -9px rgba(0,0,0,0.75);
+              -moz-box-shadow: 0px 0px 24px -9px rgba(0,0,0,0.75);
+              box-shadow: 0px 0px 24px -9px rgba(0,0,0,0.75);
+              margin: 10px;
+          ">Edit Profile</button>
+          <input type="submit" value="Save Profile" class="save_profile_button" style="
+          display: none;
+              padding: 10px 18px 10px 18px;
+              border-radius: 10px;
+              outline: none;
+              border: none;
+              background-color: #ff7979;
+              font-family: Montserrat;
+              color: white;
+              transition: background-color .1s, transform .1s;
+              -webkit-box-shadow: 0px 0px 24px -9px rgba(0,0,0,0.75);
+              -moz-box-shadow: 0px 0px 24px -9px rgba(0,0,0,0.75);
+              box-shadow: 0px 0px 24px -9px rgba(0,0,0,0.75);
+              margin: 10px;
+          ">
+          {% endif %}
+          <table>
+            <tr>
+              <td>First Name:</td>
+              <td><input maxlength="20" name="first_name" class="about_input" type="text" placeholder="First Name" value="{{profile.first_name}}" disabled required></td>
+            </tr>
+            <tr>
+              <td>Last Name:</td>
+              <td><input maxlength="20" name="last_name" class="about_input" type="text" placeholder="Last Name" value="{{profile.last_name}}" disabled required></td>
+            </tr>
+            <tr>
+              <td>Username:</td>
+              <td><input maxlength="20" name="username" class="about_input" type="text" placeholder="Username" value="{{profile.username}}" disabled required></td>
+            </tr>
+            <tr>
+              <td>Email:</td>
+              <td><input maxlength="100" name="email" class="about_input" type="text" placeholder="Email" value="{{profile.email}}" disabled required></td>
+            </tr>
+
+          </table>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+<script>
+
+  function comment_focus(comment_button) {
+    comment_button.parentElement.parentElement.querySelector('form').querySelector('input').focus()
+  }
+
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
+
+  var commentform = document.getElementsByClassName('comment_form');
+  for (var i = 0; i < commentform.length; i++) {
+      commentform[i].addEventListener('submit', (event) => {
+        event.preventDefault()
+      })
+    }
+
+
+  function editcomment(comment) {
+    const commentvalue = comment.querySelector('input').value;
+    fetch(`/editcomment/${comment.dataset.postid}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        content: commentvalue,
+        edit: 'False'
+      })
+    });
+    comment.querySelector('input').value = '';
+
+    location.reload();
+  }
+
+  function removeimagepost(remove) {
+    $('#previewImagePost').css("display", "none");
+    remove.parentElement.parentElement.querySelector('.file_input_div').querySelector('#imgInp').value = '';
+    $('#uploadimagebutton').fadeIn(100);
+  }
+
+  function savepost(save_button) {
+    const content_edited = save_button.parentElement.querySelector('textarea').value;
+    fetch(`/editpost/${save_button.parentElement.parentElement.dataset.postid}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        content: content_edited,
+        delete: 'False'
+      })
+    });
+    var tag = document.createElement("p");
+    var text = document.createTextNode(content_edited);
+    tag.appendChild(text);
+    var element = document.getElementById("new");
+    save_button.parentElement.parentElement.querySelector('.post_content_text').appendChild(tag);
+    save_button.parentElement.parentElement.querySelector('.post_content_text').querySelector('textarea').style = 'display: none;';
+    save_button.parentElement.parentElement.querySelector('.post_content_text').querySelector('button').style = 'display: none;';
+
+  }
+
+  function editpost(edit_button) {
+    edit_button.parentElement.parentElement.parentElement.parentElement.querySelector('.post_content_text').querySelector('p').remove();
+    edit_button.parentElement.parentElement.parentElement.parentElement.querySelector('.post_content_text').querySelector('textarea').style = 'display: block;';
+    $(edit_button.parentElement.parentElement.parentElement.parentElement.querySelector('.post_content_text').querySelector('button')).css("display", "block");
+  }
+
+  function deletepost(delete_button) {
+    fetch(`/editpost/${delete_button.parentElement.parentElement.parentElement.parentElement.dataset.postid}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        delete: 'True'
+      })
+    });
+    $(delete_button.parentElement.parentElement.parentElement.parentElement).css("-webkit-animation-play-state", "running");
+    delete_button.parentElement.parentElement.parentElement.parentElement.addEventListener('animationend', () => {
+      delete_button.parentElement.parentElement.parentElement.parentElement.remove();
+    })
+  }
+
+  function moreoptions(post_button) {
+    $(post_button.parentElement.querySelector('.more_options_div')).fadeToggle(100);
+
+  }
+
+  function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      $('#blah').attr('src', e.target.result);
+      $('#previewImagePost').css("display", "inline-block");
+      document.querySelector('#image_filename').innerHTML = '';
+      document.querySelector('#image_filename').innerHTML = input.files[0].name;
+      $('#uploadimagebutton').fadeOut(100);
+    }
+
+    reader.readAsDataURL(input.files[0]); // convert to base64 string
+  }
+}
+
+$("#imgInp").change(function() {
+  readURL(this);
+});
+
+  var elementss = document.getElementsByClassName('profile_navigation_tab');
+
+  function show_tab(tab) {
+    document.querySelector('.profile_posts_display').style = 'display: none;';
+    document.querySelector('.profile_relationships_display').style = 'display: none;';
+    document.querySelector('.profile_classrooms_display').style = 'display: none;';
+    document.querySelector('.profile_about_display').style = 'display: none;';
+    $(`.profile_${tab.toLowerCase()}_display`).fadeIn(400);
+
+    for (var i = 0; i < elementss.length; i++) {
+      elementss[i].style = 'border-bottom: none;';
+      if (elementss[i].innerText == tab) {
+        elementss[i].style = 'border-bottom: 5px solid #0097e6;';
+      }
+    }
+  }
+
+  document.querySelector('.profile_navigation_tab').style = 'border-bottom: 5px solid #0097e6;';
+  document.addEventListener('click', event => {
+    const clicktarget = event.target
+
+    if (clicktarget.className == 'changeprofilepic') {
+      $('.formchangepic').fadeToggle(100);
+    }
+
+    if (clicktarget.className != 'more_options_button') {
+      $('.more_options_div').fadeOut(100);
+    }
+
+    if (clicktarget.className == 'togglechangecoverphoto') {
+      $('.changecoverphotodiv').fadeToggle(100);
+    }
+
+    if (clicktarget.className == 'profile_navigation_tab') {
+      const content_innerText = clicktarget.innerText
+
+      show_tab(content_innerText);
+
+    }
+
+    if (clicktarget.className == 'edit_profile_button') {
+      var input = document.getElementsByClassName('about_input');
+      for (var i = 0; i < input.length; i++) {
+        input[i].disabled = false;
+      }
+      document.querySelector('.edit_profile_button').style.display = 'none';
+      document.querySelector('.save_profile_button').style.display = 'block';
+    }
+
+  });
+</script>
+
+
+{% endblock %}

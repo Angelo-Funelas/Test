@@ -1,0 +1,411 @@
+{% extends "school/layout.html" %}
+{% load static %}
+{% block body %}
+
+<style media="screen">
+
+  .classwork_ongoing_container {
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+    padding: 50px 20px 50px 20px;
+    max-height: 800px;
+    overflow-y: scroll;
+  }
+
+  .classwork_heading {
+    border-radius: 15px;
+    background-color: white;
+    padding: 20px;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+  }
+
+  .Montserrat_font {
+    font-family: Montserrat;
+  }
+
+  .classwork_createTask {
+    padding: 10px;
+    background-color: #f1c40f;
+    border: none;
+    border-radius: 20px;
+    margin-top: 10px;
+    font-family: Montserrat;
+    color: white;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .classwork_createTask:hover {
+    background-color: #f39c12;
+  }
+
+  .classwork_classwork_container {
+    border-radius: 25px;
+    width: 100%;
+    height: 180px;
+    padding: 10px;
+    margin: 10px;
+    color: #ffffff;
+    font-family: Montserrat
+  }
+
+  .classwork_closeActivity {
+    padding: 10px;
+    background-color: #e84118;
+    border: none;
+    border-radius: 20px;
+    margin-top: 10px;
+    font-family: Montserrat;
+    color: white;
+    display: inline-block;
+    cursor: pointer;
+    float: right;
+    font-size: 10px;
+  }
+
+  .classwork_openActivity {
+    padding: 10px;
+    background-color: #4cd137;
+    border: none;
+    border-radius: 20px;
+    margin-top: 10px;
+    font-family: Montserrat;
+    color: white;
+    display: inline-block;
+    cursor: pointer;
+    float: right;
+    font-size: 10px;
+  }
+
+  .progress_bar_inner {
+      width: {{tasks_finished_percent}}%;
+      height: 100%;
+      float: left;
+      border-radius: 0px 25px 25px 0px;
+      text-align: center;
+      padding: 6px;
+      font-family: Montserrat;
+      animation: grow 2s;
+      color: #f5f6fa;
+      background-color: #7bed9f;
+    }
+
+    @keyframes grow {
+      0% {
+        width: 0%;
+      }
+      100% {
+        width: {{tasks_finished_percent}}%;
+      }
+    }
+
+</style>
+
+<div class="classwork_heading dropshadowpost">
+
+  <h1 class="Montserrat_font">Ongoing Classwork</h1>
+  <div class="classwork_ongoing_container">
+    {% for classwork in classworks %}
+
+      <div class="classwork_classwork_container dropshadowpost" style="background-color: {{classwork.for_class.hex_color}};">
+        {{classwork.title}} - [{{classwork.for_class.classname}}]
+
+        <div style="
+          width: 100%;
+          height: 40px;
+          border: solid;
+          border-color: black;
+          overflow: hidden;
+          border-radius: 20px;
+          margin-bottom: 10px;
+          background: rgb(47,54,64);
+          background: #dfe4ea;
+        ">
+          <div class="progress_bar_inner" style="
+            width: {{classwork.percent}}%;
+            {% if classwork.percent == 100.0 %}
+              background-color: #2ed573;
+            {% elif classwork.percent < 25.0 %}
+              background-color: #e55039;
+            {% elif classwork.percent < 60.0 %}
+              background-color: #f6b93b;
+            {% endif %}
+          ">
+            {{classwork.percent}}%
+          </div>
+        </div>
+        <p>{{classwork.completed_students.count}} out of {{classwork.for_class.students.count}}</p>
+        {% for student in classwork.completed_students.all %}
+          <img src="{{student.profilepicture.url}}" class="profilepicture previewprofilepictureintask">
+        {% endfor %}
+        <div class="classwork_closeActivity" data-task_id="{{classwork.id}}">Close</div>
+      </div>
+
+    {% empty %}
+
+    <div class="classwork_classwork_container dropshadowpost" style="background-color: #dfe6e9;">
+      <h2 style="text-align: center;">No Classwork</h2>
+    </div>
+
+    {% endfor %}
+
+  </div>
+  <div class="classwork_createTask" onclick="$('.make_task_div').fadeIn(200); document.querySelector('.new_task_container').style.height = '550px'; $('#user-profile-fixed').fadeOut(100);">Create +</div>
+
+</div>
+
+<div class="classwork_heading dropshadowpost" style="margin-bottom: 200px;">
+
+  <h1 class="Montserrat_font">Closed Classwork</h1>
+  <div class="classwork_ongoing_container">
+    {% for classwork in Closed_classworks %}
+
+      <div class="classwork_classwork_container dropshadowpost" style="background-color: {{classwork.for_class.hex_color}};">
+        {{classwork.title}} - [{{classwork.for_class.classname}}]
+
+        <div style="
+          width: 100%;
+          height: 40px;
+          border: solid;
+          border-color: black;
+          overflow: hidden;
+          border-radius: 20px;
+          margin-bottom: 10px;
+          background: rgb(47,54,64);
+          background: #dfe4ea;
+        ">
+          <div class="progress_bar_inner" style="
+            width: {{classwork.percent}}%;
+            {% if classwork.percent == 100.0 %}
+              background-color: #2ed573;
+            {% elif classwork.percent < 25.0 %}
+              background-color: #e55039;
+            {% elif classwork.percent < 60.0 %}
+              background-color: #f6b93b;
+            {% endif %}
+          ">
+            {{classwork.percent}}%
+          </div>
+        </div>
+        <p>{{classwork.completed_students.count}} out of {{classwork.for_class.students.count}}</p>
+        {% for student in classwork.completed_students.all %}
+        <img src="{{student.profilepicture.url}}" class="profilepicture previewprofilepictureintask">
+        {% endfor %}
+        <div class="classwork_openActivity" data-task_id="{{classwork.id}}">Re-open</div>
+      </div>
+
+    {% empty %}
+
+    <div class="classwork_classwork_container dropshadowpost" style="background-color: #dfe6e9;">
+      <h2 style="text-align: center;">No Classwork</h2>
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+</div>
+
+<style>
+  .new_task_container {
+    background-color: white;
+    border-radius: 20px;
+    padding: 15px;
+    width: 1000px;
+    height: 0px;
+    margin-top: 75px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: .2s;
+  }
+
+  .new_task_container h1 {
+    font-family: Montserrat;
+  }
+
+  .new_task_form input, textarea {
+    padding: 10px;
+    display: block;
+    margin: 10px;
+    border-radius: 5px;
+    background-color: #bdc3c7;
+    font-family: Montserrat;
+    border: none;
+    outline: none;
+    transition: .2s;
+  }
+
+.new_task_form input:focus, textarea:focus {
+  background-color: #ecf0f1;
+}
+
+.new_task_form textarea {
+  width: 100%;
+  resize: none;
+  height: 200px;
+}
+
+#charactersleft {
+  margin-left: 420px;
+}
+
+.link_input {
+  width: 100%;
+  font-size: 12px;
+}
+
+.task_file_input {
+  font-size: 16px;
+  display: inline-block;
+  margin: 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 400px;
+}
+
+.newtask_left_div {
+  width: 48%;
+  height: 450px;
+  displat: inline-block;
+  float: left;
+}
+
+.newtask_right_div {
+  border-left: solid 2px black;
+  width: 48%;
+  height: 450px;
+  padding-left: 10px;
+  displat: inline-block;
+  float: right;
+}
+
+.newtask_classroom_select {
+  padding: 10px;
+  width: 100%;
+  border-radius: 15px;
+  outline: none;
+}
+
+</style>
+
+<div style="display: none;" class="make_task_div">
+  <div class="dim-form">
+    <div class="new_task_container dropshadowpost">
+      <h1>New Task</h1>
+      <form class="new_task_form" action="{% url 'newtask' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <div class="newtask_left_div">
+          <input type="text" name="title" placeholder="Task Title" required class="dropshadowpost">
+          <textarea name="description" placeholder="Task Description" required id="task_description" class="dropshadowpost" maxlength="500" oninput="updatelimit()"></textarea>
+          <p id="charactersleft">0/500</p>
+        </div>
+        <div class="newtask_right_div">
+          <input type="text" name="link" placeholder="Link [optional]" class="dropshadowpost link_input">
+
+          Upload File [optional]
+          <input type="file" name="file" class="dropshadowpost task_file_input">
+          <br>
+          Classroom:
+          <select class="newtask_classroom_select" name="for_class">
+            {% for teachclass in teacher_classrooms %}
+              <option value="{{teachclass.id}}">{{teachclass.classname}} - [#{{teachclass.id}}]</option>
+            {% endfor %}
+          </select>
+          <input type="submit" value="POST" onclick="$('.loading_div').fadeIn(100);" class="YesButton" style="float: right; margin-top: 100px;">
+
+
+
+        </div>
+
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<style>
+  .previewprofilepictureintask {
+    width: 40px;
+    height: 40px;
+  }
+
+  @media (pointer:none), (pointer:coarse) {
+
+
+    .progress_bar_inner {
+      font-size: 20px;
+    }
+
+    .new_task_container {
+      margin-top: 400px;
+      width: 90%;
+    }
+
+  }
+</style>
+
+
+<script>
+
+  function updatelimit() {
+    const characters = document.querySelector('#task_description').value.length;
+    document.querySelector('#charactersleft').innerText = `${characters}/500`;
+
+
+  }
+
+  document.addEventListener('click', event => {
+    const clicktarget = event.target
+
+    if (clicktarget.className == 'dim-form') {
+      $('.make_task_div').fadeOut(300);
+      $('#user-profile-fixed').fadeIn(200);
+      document.querySelector('.new_task_container').style.height = '0px';
+    }
+
+    if (clicktarget.className == 'classwork_closeActivity') {
+      $('.loading_div').fadeIn(100);
+      const task_id = clicktarget.dataset.task_id;
+      const action = "close";
+      fetch(`/viewtask/${task_id}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          "action": action,
+          "user_id": {{user.id}}
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+
+      });
+      $('.loading_div').fadeOut(100);
+      location.reload();
+    }
+
+    if (clicktarget.className == 'classwork_openActivity') {
+      $('.loading_div').fadeIn(100);
+      const task_id = clicktarget.dataset.task_id;
+      const action = "reopen";
+      fetch(`/viewtask/${task_id}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          "action": action,
+          "user_id": {{user.id}}
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+
+      });
+      $('.loading_div').fadeOut(100);
+      location.reload();
+    }
+
+  });
+</script>
+
+{% endblock %}
